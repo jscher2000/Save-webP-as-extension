@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Options for Save webP as PNG or JPEG</title>
+<style>
+/* Save webP as PNG or JPEG v0.5 */
+body {margin: 8px 16px; background-color: #dff; font-size: 16px;}
+#btnSave1, #btnSave2, #btnSave3, #btnSave4 {float: right; margin-top: 8px;}
+</style>
+</head>
+<body>
+<h1>Options for Save webP as PNG or JPEG</h1>
+<form>
+	<h2>Button Bar Options<button type="button" id="btnSave1">Save Changes</button></h2>
+	<p class="chk">Download buttons to display: <br>
+		<label><input type="checkbox" name="btnpng" value="png">PNG</label> 
+		<label><input type="checkbox" name="btnjpg100" value="jpg100">JPG 100%</label> 
+		<label><input type="checkbox" name="btnjpg92" value="jpg92">JPG 92%</label> 
+		<label><input type="checkbox" name="btnjpg85" value="jpg85">JPG 85%</label> 
+		<label><input type="checkbox" name="btnjpg80" value="jpg80">JPG 80%</label> 
+		<label><input type="checkbox" name="btnjpg75" value="jpg75">JPG 75%</label></p>
+	<p class="rad">Color scheme: <br>
+		<label><input type="radio" name="radColors" value="light"> Light background</label><br> 
+		<label><input type="radio" name="radColors" value="dark"> Dark background</label></p>
+
+	<h2>Save Dialog / AutoSave Options<button type="button" id="btnSave2">Save Changes</button></h2>
+	<p class="rad">Show Save As dialog each time: <br>
+		<label><input type="radio" name="radSaveAs" value="yes"> Yes</label><br> 
+		<label><input type="radio" name="radSaveAs" value="no"> No (Auto-save)</label><br> 
+		<label><input type="radio" name="radSaveAs" value="omit"> Follow my general setting for downloads</label></p>
+
+	<h2>Save Path Options<button type="button" id="btnSave3">Save Changes</button></h2>
+	<p class="rad">Initial or Autosave folder under your regular Firefox downloads folder: <br>
+		<label><input type="radio" name="radFolder" value="default"> Directly in my downloads folder</label><br> 
+		<label><input type="radio" name="radFolder" value="ext"> Save_webP folder</label><br> 
+		<label><input type="radio" name="radFolder" value="custom" disabled> [Future version] Custom folder name: </label><input type="text" name="txtFolder" style="width: 60px" disabled></p>
+	<p class="rad">[Future version] Create subfolders: <br>
+		<label><input type="radio" name="radsubFolder" value="none" checked disabled>No thanks</label><br>
+		<label><input type="radio" name="radsubFolder" value="date" disabled>Each day</label><br>
+		<label><input type="radio" name="radsubFolder" value="host" disabled>Each site (main host name)</label><br>
+		<label><input type="radio" name="radsubFolder" value="img" disabled>Each site (image server name)</label></p>
+
+	<h2>File Name Options</h2>
+	<p class="chk">[Future version] Add to file name: <br>
+		<label><input type="checkbox" name="namedate" value="date" disabled>Download date</label><br>
+		<label><input type="checkbox" name="nametime" value="time" disabled>Download time</label><br>
+		<label><input type="checkbox" name="namehost" value="host" disabled>Main site host name</label><br>
+		<label><input type="checkbox" name="nameimg" value="img" disabled>Image server host name</label> </p>
+
+	<h2>Download History Privacy Options<button type="button" id="btnSave4">Save Changes</button></h2>
+	<p class="rad">Keep saves from private windows private: <br>
+		<label><input type="radio" name="radPrivate" value="yes"> Yes, only show in private window downloads</label><br>
+		<label><input type="radio" name="radPrivate" value="no"> No, show in regular downloads</label></p>
+</form>
+<script src="options.js"></script>
+</body>
+</html>
