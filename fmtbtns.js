@@ -1,7 +1,9 @@
 /* 
-  Copyright 2020. Jefferson "jscher2000" Scher. License: MPL-2.0.
+  Save webP as PNG or JPEG
+  Copyright 2021. Jefferson "jscher2000" Scher. License: MPL-2.0.
   version 0.5 - fifth try
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
+  version 0.7 - enable subfolder, file name, and auto-close options
 */
 
 /**** Create and populate data structure ****/
@@ -19,12 +21,13 @@ var oPrefs = {
 	btnjpg85: true,				// show JPG 85% button
 	btnjpg80: true,				// show JPG 80% button
 	btnjpg75: true,				// show JPG 75% button
+	btnautoclose: false,		// remove button bar after downloading
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
 	usefolder: true,			// subfolder for download
 	customfolder: null,			// custom subfolder name
-	subfolder: null,			// Date/Host/ImgServer/None
+	subfolder: 'none',			// Date/Host/ImgServer/None
 	namedate: false,			// Add date into file name
 	nametime: false,			// Add time into file name
 	namehost: false,			// Add host into file name
@@ -97,11 +100,12 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 				cssOrigin: "user"
 		}).then(() => {
 			browser.tabs.executeScript({
-				code:  `/* Save webP as... v0.6 */
+				code:  `/* Save webP as... v0.7 */
+						var autoclose = ${oPrefs.btnautoclose};
 						// Set up variables from menu click
 						var w = browser.menus.getTargetElement(${menuInfo.targetElementId});
 						var u = new URL('${menuInfo.srcUrl}');
-						function convert_${menuInfo.targetElementId}(el, path, fmt, ext, qual){
+						function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 							// Create new filename
 							var f = path.slice(path.lastIndexOf('/') + 1).replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
 							if (qual != 1) f += '_' + (100 * parseFloat(qual));
@@ -125,20 +129,30 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								browser.runtime.sendMessage({
 									"download": {
 										cblob: blob,
-										fname: f
+										fname: f, 
+										imghost: imghost,
+										imgpath: path,
+										pghost: location.hostname
 									}
+								})
+								.then(() => {
+									if (autoclose) convbtn_${menuInfo.targetElementId}(null); // remove the bar
 								})
 								.catch((err) => {console.log('An error occurred while saving the image: '+err.message);});
 							}, fmt, qual);
 						}
 						function convbtn_${menuInfo.targetElementId}(e){
 							// Execute button click (save image or close)
-							tgt = e.target;
-							if (!tgt.hasAttribute('params')) tgt = tgt.closest('button');
-							var params = tgt.getAttribute('params').split(',');
-							if (params[0] == 'p') convert_${menuInfo.targetElementId}(w, u.pathname, 'image/png', 'png', 1);
+							if (e){
+								tgt = e.target;
+								if (!tgt.hasAttribute('params')) tgt = tgt.closest('button');
+								var params = tgt.getAttribute('params').split(',');
+							} else { // force close
+								params = ['close'];
+							}
+							if (params[0] == 'p') convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'png', 1);
 							else if (params[0] == 'j'){
-								convert_${menuInfo.targetElementId}(w, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
+								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
 							} else if (params[0] == 'options'){
 								browser.runtime.sendMessage({"options": "show"});
 							} else if (params[0] == 'close'){
@@ -195,11 +209,11 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 		});
 	} else { // Use the specified format and quality
 		browser.tabs.executeScript({
-			code:  `/* Save webP as... v0.6 */
+			code:  `/* Save webP as... v0.7 */
 					// Set up variables from menu click
 					var w = browser.menus.getTargetElement(${menuInfo.targetElementId});
 					var u = new URL('${menuInfo.srcUrl}');
-					function convert_${menuInfo.targetElementId}(el, path, fmt, ext, qual){
+					function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 						// Create new filename
 						var f = path.slice(path.lastIndexOf('/') + 1).replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
 						if (qual != 1) f += '_' + (100 * parseFloat(qual));
@@ -223,7 +237,10 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							browser.runtime.sendMessage({
 								"download": {
 									cblob: blob,
-									fname: f
+									fname: f, 
+									imghost: imghost,
+									imgpath: path,
+									pghost: location.hostname
 								}
 							})
 							.catch((err) => {console.log('An error occurred while saving the image: '+err.message);});
@@ -231,11 +248,11 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 					}
 					var fmt = '${axn}'.slice(4); //Past the word save
 					if (fmt == 'png'){
-						convert_${menuInfo.targetElementId}(w, u.pathname, 'image/png', 'png', 1);
+						convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'png', 1);
 					} else {
 						if (fmt.slice(0,3) == 'jpg'){
 							var qual = parseFloat(fmt.slice(3)) / 100;
-							convert_${menuInfo.targetElementId}(w, u.pathname, 'image/jpeg', 'jpg', qual);
+							convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', qual);
 						} else {
 							alert('Sorry, but I did not recognize the desired format from ' + fmt);
 						}
@@ -264,8 +281,33 @@ function handleMessage(request, sender, sendResponse){
 		} else if (oPrefs.usefolder == true && oPrefs.customfolder != null){
 			downloadpath += oPrefs.customfolder + '/';
 		}
-		// More stuff will go here later
-		opts.filename = downloadpath + request.download.fname;
+		// Subfolder options
+		switch (oPrefs.subfolder){
+			case 'date':
+				downloadpath += datetime('d').slice(1) + '/';
+				break;
+			case 'host':
+				downloadpath += request.download.pghost + '/';
+				break;
+			case 'img':
+				downloadpath += request.download.imghost + '/';
+				break;
+		}
+		// File name options
+		var fname = request.download.fname;
+		if (oPrefs.namehost && request.download.pghost.length > 0){
+			fname = fname.slice(0, fname.length-4) + '_(' + request.download.pghost + ')' + fname.slice(-4);
+		}
+		if (oPrefs.nameimg && request.download.imghost.length > 0){
+			fname = fname.slice(0, fname.length-4) + '_[' + request.download.imghost + ']' + fname.slice(-4);
+		}
+		if (oPrefs.namedate || oPrefs.nametime) {
+			var sType = (oPrefs.namedate) ? 'd' : '';
+			sType += (oPrefs.nametime) ? 't' : '';
+			var sDT = datetime(sType);
+			fname = fname.slice(0, fname.length-4) + sDT + fname.slice(-4);
+		}
+		opts.filename = downloadpath + fname;
 		
 		switch (oPrefs.saveas){
 			case 'yes': opts.saveAs = true; break;
@@ -277,16 +319,13 @@ function handleMessage(request, sender, sendResponse){
 			if (oPrefs.keepprivate === false) opts.incognito = false;
 			else opts.incognito = true;
 		}
-		browser.downloads.download(opts).catch((err) => {
+		browser.downloads.download(opts).then((msg)=> {
+			sendMessage({success: true});
+		}).catch((err) => {
 			console.log('An error occurred while saving the image: '+err.message);
 		});
 	} else if ("options" in request) {
 		browser.runtime.openOptionsPage();
-		/* 
-		browser.tabs.create({
-			url: browser.runtime.getURL('options.html')
-		});
-		*/
 	} else if ("update" in request) {
 		// Receive pref hint from Options page and update oPrefs from storage
 		if (request["update"] == 'fromStorage'){
@@ -304,3 +343,14 @@ function handleMessage(request, sender, sendResponse){
 	}
 }
 browser.runtime.onMessage.addListener(handleMessage);
+
+function datetime(strType){
+	var d = new Date(), dt = '';
+	if (strType != 't'){
+		dt += '_' + d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+	}
+	if (strType != 'd'){
+		dt += '_' + d.toTimeString().slice(0, 8).replace(/:/g, '.');
+	}
+	return dt;
+}

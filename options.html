@@ -56,6 +56,8 @@ p[linear] label:first-of-type { margin-left: 24px; }
 		<label><input type="checkbox" name="btnjpg85" value="jpg85">JPG 85%</label> 
 		<label><input type="checkbox" name="btnjpg80" value="jpg80">JPG 80%</label> 
 		<label><input type="checkbox" name="btnjpg75" value="jpg75">JPG 75%</label></p>
+	<p>Auto-close:</p>
+		<p class="chk"><label><input type="checkbox" name="btnautoclose"> Remove bar after downloading image</label></p>
 	<p>Color scheme: </p>
 		<p class="rad"><label><input type="radio" name="radColors" value="light"> Light background</label><br> 
 		<label><input type="radio" name="radColors" value="dark"> Dark background</label></p>
@@ -73,19 +75,19 @@ p[linear] label:first-of-type { margin-left: 24px; }
 		<p class="rad"><label><input type="radio" name="radFolder" value="default"> Directly in my downloads folder</label><br> 
 		<label><input type="radio" name="radFolder" value="ext"> Save_webP folder</label><br> 
 		<label><input type="radio" name="radFolder" value="custom" disabled> [Future version] Custom folder name: </label><input type="text" name="txtFolder" style="width: 60px" disabled></p>
-	<p>[Future version] Create subfolders: </p>
-		<p class="rad"><label><input type="radio" name="radsubFolder" value="none" checked disabled>No thanks</label><br>
-		<label><input type="radio" name="radsubFolder" value="date" disabled>Each day</label><br>
-		<label><input type="radio" name="radsubFolder" value="host" disabled>Each site (main host name)</label><br>
-		<label><input type="radio" name="radsubFolder" value="img" disabled>Each site (image server name)</label></p>
+	<p>Create subfolders: </p>
+		<p class="rad"><label><input type="radio" name="radsubFolder" value="none" checked>No thanks</label><br>
+		<label><input type="radio" name="radsubFolder" value="date">Each day</label><br>
+		<label><input type="radio" name="radsubFolder" value="host">Each site (main host name)</label><br>
+		<label><input type="radio" name="radsubFolder" value="img">Each site (image server name)</label></p>
 </section>
 <section>
 	<h2>File Name Options</h2>
-	<p>[Future version] Add to file name: </p>
-		<p class="chk"><label><input type="checkbox" name="namedate" value="date" disabled>Download date</label><br>
-		<label><input type="checkbox" name="nametime" value="time" disabled>Download time</label><br>
-		<label><input type="checkbox" name="namehost" value="host" disabled>Main site host name</label><br>
-		<label><input type="checkbox" name="nameimg" value="img" disabled>Image server host name</label> </p>
+	<p>Add to file name: </p>
+		<p class="chk"><label><input type="checkbox" name="namedate" value="date">Download date</label><br>
+		<label><input type="checkbox" name="nametime" value="time">Download time</label><br>
+		<label><input type="checkbox" name="namehost" value="host">(Main site host name)</label><br>
+		<label><input type="checkbox" name="nameimg" value="img">[Image server host name]</label> </p>
 
 	<h2>Download History Privacy Options<button type="button" id="btnSave4" class="savebtn">Save Changes</button></h2>
 	<p>Keep saves from private windows private: </p>

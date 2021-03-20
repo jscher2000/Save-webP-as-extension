@@ -1,4 +1,10 @@
-/* Save webP as PNG or JPEG v0.6 */
+/* 
+  Save webP as PNG or JPEG
+  Copyright 2021. Jefferson "jscher2000" Scher. License: MPL-2.0.
+  version 0.5 - fifth try
+  version 0.6 - options for menu item behavior, highlight unsaved options page changes
+  version 0.7 - enable subfolder, file name, and auto-close options
+*/
 
 /*** Initialize Page ***/
 
@@ -15,12 +21,13 @@ var oSettings = {
 	btnjpg85: true,				// show JPG 85% button
 	btnjpg80: true,				// show JPG 80% button
 	btnjpg75: true,				// show JPG 75% button
+	btnautoclose: false,		// remove button bar after downloading
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
 	usefolder: true,			// subfolder for download
 	customfolder: null,			// custom subfolder name
-	subfolder: null,			// Date/Host/ImgServer/None
+	subfolder: 'none',			// Date/Host/ImgServer/None
 	namedate: false,			// Add date into file name
 	nametime: false,			// Add time into file name
 	namehost: false,			// Add host into file name
@@ -73,6 +80,8 @@ browser.storage.local.get("prefs").then( (results) => {
 			}
 		default: /* NA */
 	}
+	// SubFolder
+	document.forms[0].radsubFolder.value = oSettings.subfolder;
 	// More to come later
 	
 	// Privacy
@@ -113,11 +122,13 @@ function updatePref(evt){
 	} else {
 		oSettings.customfolder = null;
 	}
+	// SubFolder
+	oSettings.subfolder = document.forms[0].radsubFolder.value;
 	// More to come later
 	
 	// Privacy
-	if (document.forms[0].radPrivate.value == 'yes') oSettings.keepprivate = true;
-	else oSettings.keepprivate = false;
+	if (document.forms[0].radPrivate.value == 'false') oSettings.keepprivate = false;
+	else oSettings.keepprivate = true;
 	
 	// Update storage
 	browser.storage.local.set(
@@ -175,6 +186,26 @@ function lightSaveBtn(evt){
 							break;
 						case 'custom':
 							if (oSettings.usefolder == false || oSettings.customfolder == null) chgd = true;
+							else chgd = false;
+							break;
+					}
+					break;
+				case 'radsubFolder':
+					switch (evt.target.value){
+						case 'none':
+							if (oSettings.subfolder != 'none') chgd = true;
+							else chgd = false;
+							break;
+						case 'date':
+							if (oSettings.subfolder != 'date') chgd = true;
+							else chgd = false;
+							break;
+						case 'host':
+							if (oSettings.subfolder != 'host') chgd = true;
+							else chgd = false;
+							break;
+						case 'img':
+							if (oSettings.subfolder != 'img') chgd = true;
 							else chgd = false;
 							break;
 					}
