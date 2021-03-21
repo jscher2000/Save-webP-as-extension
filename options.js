@@ -4,6 +4,7 @@
   version 0.5 - fifth try
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
   version 0.7 - enable subfolder, file name, and auto-close options
+  version 0.8 - animated GIF option (via ezgif.com), automatic bar display option
 */
 
 /*** Initialize Page ***/
@@ -21,7 +22,9 @@ var oSettings = {
 	btnjpg85: true,				// show JPG 85% button
 	btnjpg80: true,				// show JPG 80% button
 	btnjpg75: true,				// show JPG 75% button
+	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
+	btnstandalone: false,		// show bar automatically on image pages
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
