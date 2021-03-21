@@ -7,4 +7,4 @@ Anticipated URL on AMO: https://addons.mozilla.org/firefox/addon/save-webp-as-pn
 
 ![Image of context menu](screenshots/context-menu_0.5_png_92.jpg)
 
-![Image of format buttons](screenshots/format-buttons_0.5_png_92.jpg)
+![Image of format buttons](screenshots/format-buttons_0.8.png)
