@@ -6,6 +6,7 @@
   version 0.7 - enable subfolder, file name, and auto-close options
   version 0.8 - animated GIF option (via ezgif.com), automatic bar display option
   version 0.9 - image info, bug fixes
+  version 0.9.1 - option to show the stand-alone bar automatically only for image/webp
 */
 
 /**** Create and populate data structure ****/
@@ -26,6 +27,7 @@ var oPrefs = {
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
 	btnstandalone: true,		// show bar automatically on image pages
+	btnstalwebp: false,			//   above feature is for image/webp only
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
@@ -219,10 +221,10 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							if (!tgt) return;
 							var br = w.getBoundingClientRect();
 							if (docct.indexOf('image/') === 0){ // stand-alone
-								if (br.top > 40){
-									tgt.style.top = window.scrollY + (br.top - 40) + 'px';
+								if (br.top > tgt.offsetHeight){
+									tgt.style.top = window.scrollY + (br.top - tgt.offsetHeight) + 'px';
 								} else {
-									tgt.style.top = window.scrollY + br.top + 'px';
+									tgt.style.top = '0px';
 								}
 								tgt.style.left = '50%';
 								tgt.style.width = '600px';
@@ -360,6 +362,8 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 });
 
 function standAloneBar(elSelector){
+	// check for "webp only"
+	if (oPrefs.btnstalwebp && document.contentType.toLowerCase().indexOf('image/webp') < 0) return;
 	// button bar for pages with stand-alone images (TODO: limit duplication of axn="showbar")
 	var cssfile = '/light.css';
 	if (oPrefs.btndark == true) cssfile = '/dark.css';

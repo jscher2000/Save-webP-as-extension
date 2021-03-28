@@ -6,6 +6,7 @@
   version 0.7 - enable subfolder, file name, and auto-close options
   version 0.8 - animated GIF option (via ezgif.com), automatic bar display option
   version 0.9 - image info, bug fixes
+  version 0.9.1 - option to show the stand-alone bar automatically only for image/webp
 */
 
 /*** Initialize Page ***/
@@ -26,6 +27,7 @@ var oSettings = {
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
 	btnstandalone: true,		// show bar automatically on image pages
+	btnstalwebp: false,			//   above feature is for image/webp only
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
