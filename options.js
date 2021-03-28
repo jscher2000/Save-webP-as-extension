@@ -5,6 +5,7 @@
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
   version 0.7 - enable subfolder, file name, and auto-close options
   version 0.8 - animated GIF option (via ezgif.com), automatic bar display option
+  version 0.9 - image info, bug fixes
 */
 
 /*** Initialize Page ***/
@@ -24,7 +25,7 @@ var oSettings = {
 	btnjpg75: true,				// show JPG 75% button
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
-	btnstandalone: false,		// show bar automatically on image pages
+	btnstandalone: true,		// show bar automatically on image pages
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
@@ -36,7 +37,8 @@ var oSettings = {
 	namehost: false,			// Add host into file name
 	nameimg: false,				// Add image server into file name
 	/* Other options */
-	keepprivate: true			// Don't add downloads from incognito to history
+	keepprivate: true,			// Don't add downloads from incognito to history
+	expandinfo: false			// Show info section on overlay for inline (session only)
 }
 
 // Update oSettings from storage

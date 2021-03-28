@@ -1,7 +1,8 @@
-/* Save webP as PNG or JPEG v0.5 */
+/* Save webP as PNG or JPEG v0.9 */
 .saveWebPasbtns{
 	position: absolute !important; z-index: 10000 !important; color: #000 !important; background: transparent !important; 
 	padding: 3px 6px !important; text-align: center !important;
+	box-sizing: border-box !important;
 }
 .saveWebPasbtns button{
 	-moz-appearance: none; font-family: sans-serif !important; font-weight: 500 !important; font-size: 14px !important; cursor: pointer !important;
@@ -18,6 +19,18 @@
 }
 .saveWebPasbtns button span{
 	font-size: 11px; margin-left: 2px;
+}
+.saveWebPasInfo {
+	background-color: #333 !important;
+	text-align: left !important;
+	padding: 4px 12px;
+	border-radius: 4px !important; 
+	box-sizing: border-box !important;
+}
+.saveWebPasInfo p {
+	margin: 0 !important;
+	line-height: 1.2em !important;
+	font-size: 16px !important; 
 }
 @media print { 
 	.saveWebPasbtns{

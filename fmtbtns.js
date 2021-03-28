@@ -4,7 +4,8 @@
   version 0.5 - fifth try
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
   version 0.7 - enable subfolder, file name, and auto-close options
-  bersion 0.8 - animated GIF option (via ezgif.com), automatic bar display option
+  version 0.8 - animated GIF option (via ezgif.com), automatic bar display option
+  version 0.9 - image info, bug fixes
 */
 
 /**** Create and populate data structure ****/
@@ -24,7 +25,7 @@ var oPrefs = {
 	btnjpg75: true,				// show JPG 75% button
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
-	btnstandalone: false,		// show bar automatically on image pages
+	btnstandalone: true,		// show bar automatically on image pages
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
@@ -36,14 +37,15 @@ var oPrefs = {
 	namehost: false,			// Add host into file name
 	nameimg: false,				// Add image server into file name
 	/* Other options */
-	keepprivate: true			// Don't add downloads from incognito to history
+	keepprivate: true,			// Don't add downloads from incognito to history
+	expandinfo: false			// Show info section on overlay for inline (session only)
 }
 
 // Register content script for automatically displayed button bar
 let cs = null;
-function doContent(){
+async function doContent(){
 	if (oPrefs.btnstandalone) {
-		cs = browser.contentScripts.register({
+		cs = await browser.contentScripts.register({
 			matches: ['http://*/*', 'https://*/*'],
 			js: [{file: 'detectstandalone.js'}],
 			runAt: "document_idle"
@@ -58,7 +60,7 @@ function doContent(){
 browser.storage.local.get("prefs").then( (results) => {
 	if (results.prefs != undefined){
 		if (JSON.stringify(results.prefs) != '{}'){
-			var arrSavedPrefs = Object.keys(results.prefs)
+			var arrSavedPrefs = Object.keys(results.prefs);
 			for (var j=0; j<arrSavedPrefs.length; j++){
 				oPrefs[arrSavedPrefs[j]] = results.prefs[arrSavedPrefs[j]];
 			}
@@ -111,18 +113,21 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 		if (oPrefs.btnjpg85 == true) btns.push({params: 'j,0.85', label: 'JPG', span: '85%'});
 		if (oPrefs.btnjpg80 == true) btns.push({params: 'j,0.80', label: 'JPG', span: '80%'});
 		if (oPrefs.btnjpg75 == true) btns.push({params: 'j,0.75', label: 'JPG', span: '75%'});
-		btns.push({params: 'anigif', label: 'AniGIF', span: null});
+		btns.push({params: 'anigif', label: 'GIF(V)', span: null});
+		btns.push({params: 'info', label: 'ℹ️', span: null});
 		btns.push({params: 'options', label: '⚙️', span: null});
 		btns.push({params: 'close', label: 'X', span: null});
-
+		
 		browser.tabs.insertCSS({
 				file: cssfile,
 				frameId: menuInfo.frameId,
 				cssOrigin: "user"
 		}).then(() => {
 			browser.tabs.executeScript({
-				code:  `/* Save webP as... v0.8 */
+				code:  `/* Save webP as... v0.9 */
 						var autoclose = ${oPrefs.btnautoclose};
+						var expandinfo = ${oPrefs.expandinfo};
+						var docct = document.contentType;
 						// Set up variables from menu click
 						var w = browser.menus.getTargetElement(${menuInfo.targetElementId});
 						var u = new URL('${menuInfo.srcUrl}');
@@ -171,16 +176,32 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							} else { // force close
 								params = ['close'];
 							}
-							if (params[0] == 'p') convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'png', 1);
-							else if (params[0] == 'j'){
+							if (params[0] == 'p'){
+								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'png', 1);
+							} else if (params[0] == 'j'){
 								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
 							} else if (params[0] == 'anigif'){
-								if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
-									browser.runtime.sendMessage({"newtab": {
-											url: 'https://ezgif.com/webp-to-gif?url='+u
-										}
-									});
-								} 
+								if (u.pathname.slice(-5).toLowerCase() == '.webp'){
+									if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
+										browser.runtime.sendMessage({"newtab": {
+												url: 'https://ezgif.com/webp-to-gif?url='+u
+											}
+										});
+									} 
+								} else if (u.pathname.slice(-4).toLowerCase() == '.gif' || u.pathname.slice(-5).toLowerCase() == '.gifv') {
+									alert('Since this is a .gif/.gifv file, try using the Page Info dialog, Media panel, to Save As in GIF format.');
+								} else {
+									alert('Wrong file type??');
+								}
+							} else if (params[0] == 'info'){
+								var infodiv = document.getElementById('info_${menuInfo.targetElementId}');
+								if (infodiv){
+									if (infodiv.style.display != 'none') infodiv.style.display = 'none';
+									else infodiv.style.display = '';
+									browser.runtime.sendMessage({"toggleinfo": infodiv.style.display});
+								} else {
+									alert('Hmm, sorry, problem.');
+								}
 							} else if (params[0] == 'options'){
 								browser.runtime.sendMessage({"options": "show"});
 							} else if (params[0] == 'close'){
@@ -197,31 +218,75 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							var tgt = document.getElementById('btns_${menuInfo.targetElementId}');
 							if (!tgt) return;
 							var br = w.getBoundingClientRect();
-							tgt.style.top = window.scrollY + br.top + 'px';
-							tgt.style.left = window.scrollX + br.left + 'px';
-							tgt.style.width = br.width + 'px';
-							// Make sure the bar is in view
-							if (br.top < 0 || br.top > window.innerHeight) tgt.scrollIntoView();
+							if (docct.indexOf('image/') === 0){ // stand-alone
+								if (br.top > 40){
+									tgt.style.top = window.scrollY + (br.top - 40) + 'px';
+								} else {
+									tgt.style.top = window.scrollY + br.top + 'px';
+								}
+								tgt.style.left = '50%';
+								tgt.style.width = '600px';
+								tgt.style.marginLeft = '-300px';
+								tgt.style.maxWidth = '90vw';
+								// Make sure the bar is in view
+								if (br.top < 0 || br.top > window.innerHeight) tgt.scrollIntoView();
+							} else { // overlaid inline
+								tgt.style.top = window.scrollY + br.top + 'px';
+								tgt.style.left = window.scrollX + br.left + 'px';
+								tgt.style.width = br.width + 'px';
+								// Make sure the bar is in view
+								if (br.top < 0 || br.top > window.innerHeight) tgt.scrollIntoView();
+							}
 						}
-						/* This only works on some sites, so unfortunately, we need to use <all_urls>
-						// Avoid canvas taint from cross-site images
-						if (u.hostname != location.hostname) w.setAttribute('crossorigin', 'Anonymous');
-						*/
-						// Create button bar and position it
+						// Create button bar/info panel and position it
+						var di = document.createElement('div'); // start of "new in 0.9"
+						di.id = 'info_${menuInfo.targetElementId}'; 
+						di.className = 'saveWebPasInfo';
+						var p = document.createElement('p');
+						p.appendChild(document.createTextNode('Location: ' + u.href));
+						di.appendChild(p);
+						p = document.createElement('p');
+						if (docct.indexOf('image/') === 0){ // stand-alone
+							p.appendChild(document.createTextNode('Type: ' + document.contentType + ' (from document.contentType)'));
+						} else { //inline
+							p.appendChild(document.createTextNode('Type: (unknown)'));
+							if (!expandinfo) di.style.display = 'none';
+						}
+						di.appendChild(p);
+						var infotext = 'Dimensions: ' + w.naturalWidth + 'px × ' + w.naturalHeight + 'px';
+						if (docct.indexOf('image/') === -1){
+							if (w.width != w.naturalWidth || w.height != w.naturalHeight){
+								infotext += ' (Scaled to: ' + w.width + 'px × ' + w.height + 'px)';
+							}
+						}
+						p = document.createElement('p');
+						p.appendChild(document.createTextNode(infotext));
+						di.appendChild(p);
+						if (docct.indexOf('image/') === -1){
+							if (w.getAttribute('alt')){
+								p = document.createElement('p');
+								p.appendChild(document.createTextNode('Alt text: ' + w.getAttribute('alt')));
+								di.appendChild(p);
+							}
+						}
+						di.appendChild(p); // end of "new in 0.9"
 						var d = document.createElement('div');
 						d.id = 'btns_${menuInfo.targetElementId}'; 
 						d.className = 'saveWebPasbtns';
+						d.appendChild(di);
 						var btns = ${JSON.stringify(btns)};
 						for (var i=0; i<btns.length; i++){
-							var b = document.createElement('button');
-							b.setAttribute('params', btns[i].params);
-							b.appendChild(document.createTextNode(btns[i].label));
-							if (btns[i].span){
-								var s = document.createElement('span');
-								s.appendChild(document.createTextNode(btns[i].span));
-								b.appendChild(s);
+							if (btns[i].params != 'info' || document.contentType.indexOf('image/') === -1){
+								var b = document.createElement('button');
+								b.setAttribute('params', btns[i].params);
+								b.appendChild(document.createTextNode(btns[i].label));
+								if (btns[i].span){
+									var s = document.createElement('span');
+									s.appendChild(document.createTextNode(btns[i].span));
+									b.appendChild(s);
+								}
+								d.appendChild(b);
 							}
-							d.appendChild(b);
 						}
 						document.body.appendChild(d);
 						setpos_${menuInfo.targetElementId}();
@@ -305,7 +370,7 @@ function standAloneBar(elSelector){
 	if (oPrefs.btnjpg85 == true) btns.push({params: 'j,0.85', label: 'JPG', span: '85%'});
 	if (oPrefs.btnjpg80 == true) btns.push({params: 'j,0.80', label: 'JPG', span: '80%'});
 	if (oPrefs.btnjpg75 == true) btns.push({params: 'j,0.75', label: 'JPG', span: '75%'});
-	btns.push({params: 'anigif', label: 'AniGIF', span: null});
+	btns.push({params: 'anigif', label: 'GIF(V)', span: null});
 	btns.push({params: 'options', label: '⚙️', span: null});
 	btns.push({params: 'close', label: 'X', span: null});
 
@@ -314,7 +379,7 @@ function standAloneBar(elSelector){
 			cssOrigin: "user"
 	}).then(() => {
 		browser.tabs.executeScript({
-			code:  `/* Save webP as... v0.8 */
+			code:  `/* Save webP as... v0.9 */
 					var autoclose = ${oPrefs.btnautoclose};
 					// Set up variables from menu click
 					var w = document.querySelector('${elSelector}');
@@ -368,12 +433,18 @@ function standAloneBar(elSelector){
 						else if (params[0] == 'j'){
 							convert_standAlone(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
 						} else if (params[0] == 'anigif'){
-							if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
-								browser.runtime.sendMessage({"newtab": {
-										url: 'https://ezgif.com/webp-to-gif?url='+u
-									}
-								});
-							} 
+							if (u.pathname.slice(-5).toLowerCase() == '.webp'){
+								if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
+									browser.runtime.sendMessage({"newtab": {
+											url: 'https://ezgif.com/webp-to-gif?url='+u
+										}
+									});
+								} 
+							} else if (u.pathname.slice(-4).toLowerCase() == '.gif' || u.pathname.slice(-5).toLowerCase() == '.gifv') {
+								alert('Since this is a .gif/.gifv file, try using the Page Info dialog, Media panel, to Save As in GIF format.');
+							} else {
+								alert('Wrong file type??');
+							}
 						} else if (params[0] == 'options'){
 							browser.runtime.sendMessage({"options": "show"});
 						} else if (params[0] == 'close'){
@@ -390,24 +461,36 @@ function standAloneBar(elSelector){
 						var tgt = document.getElementById('btns_standAlone');
 						if (!tgt) return;
 						var br = w.getBoundingClientRect();
-						if (br.top > 40){
-							tgt.style.top = window.scrollY + (br.top - 40) + 'px';
+						if (br.top > tgt.offsetHeight){
+							tgt.style.top = window.scrollY + (br.top - tgt.offsetHeight) + 'px';
 						} else {
-							tgt.style.top = window.scrollY + br.top + 'px';
+							tgt.style.top = '0px';
 						}
-						tgt.style.left = window.scrollX + br.left + 'px';
-						tgt.style.width = br.width + 'px';
+						tgt.style.left = '50%';
+						tgt.style.width = '600px';
+						tgt.style.marginLeft = '-300px';
+						tgt.style.maxWidth = '90vw';
 						// Make sure the bar is in view
 						if (br.top < 0 || br.top > window.innerHeight) tgt.scrollIntoView();
 					}
-					/* This only works on some sites, so unfortunately, we need to use <all_urls>
-					// Avoid canvas taint from cross-site images
-					if (u.hostname != location.hostname) w.setAttribute('crossorigin', 'Anonymous');
-					*/
-					// Create button bar and position it
+					// Create button bar/info panel and position it
+					var di = document.createElement('div'); // start of "new in 0.9"
+					di.id = 'info_standAlone'; 
+					di.className = 'saveWebPasInfo';
+					var p = document.createElement('p');
+					p.appendChild(document.createTextNode('Location: ' + u.href));
+					di.appendChild(p);
+					p = document.createElement('p');
+					p.appendChild(document.createTextNode('Type: ' + document.contentType + ' (from document.contentType)'));
+					di.appendChild(p);
+					var infotext = 'Dimensions: ' + w.naturalWidth + 'px × ' + w.naturalHeight + 'px (naturalWidth × naturalHeight)';
+					p = document.createElement('p');
+					p.appendChild(document.createTextNode(infotext));
+					di.appendChild(p); // end of "new in 0.9"
 					var d = document.createElement('div');
 					d.id = 'btns_standAlone'; 
 					d.className = 'saveWebPasbtns';
+					d.appendChild(di);
 					var btns = ${JSON.stringify(btns)};
 					for (var i=0; i<btns.length; i++){
 						var b = document.createElement('button');
@@ -507,7 +590,7 @@ function handleMessage(request, sender, sendResponse){
 			browser.storage.local.get("prefs").then((results) => {
 				if (results.prefs != undefined){
 					if (JSON.stringify(results.prefs) != '{}'){
-						var arrSavedPrefs = Object.keys(results.prefs)
+						var arrSavedPrefs = Object.keys(results.prefs);
 						for (var j=0; j<arrSavedPrefs.length; j++){
 							oPrefs[arrSavedPrefs[j]] = results.prefs[arrSavedPrefs[j]];
 						}
@@ -517,6 +600,10 @@ function handleMessage(request, sender, sendResponse){
 				doContent();
 			}).catch((err) => {console.log('Error retrieving "prefs" from storage: '+err.message);});
 		}
+	} else if ("toggleinfo" in request) {
+		// handle as a session-only preference
+		if (oPrefs.expandinfo) oPrefs.expandinfo = false;
+		else oPrefs.expandinfo = true;
 	}
 }
 browser.runtime.onMessage.addListener(handleMessage);
