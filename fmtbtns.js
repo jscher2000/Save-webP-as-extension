@@ -7,6 +7,7 @@
   version 0.8 - animated GIF option (via ezgif.com), automatic bar display option
   version 0.9 - image info, bug fixes
   version 0.9.1 - option to show the stand-alone bar automatically only for image/webp
+  version 0.9.2 - add performance info (size, timing)
 */
 
 /**** Create and populate data structure ****/
@@ -271,6 +272,15 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								di.appendChild(p);
 							}
 						}
+						if (window.performance){
+							var imgp = performance.getEntriesByName(u.href);
+							if (imgp && imgp.length > 0){
+								p = document.createElement('p');
+								p.appendChild(document.createTextNode('Size: ' + (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + '); Transfer size: ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + '); Elapsed time: ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds'));
+								di.appendChild(p);
+								
+							}
+						}
 						di.appendChild(p); // end of "new in 0.9"
 						var d = document.createElement('div');
 						d.id = 'btns_${menuInfo.targetElementId}'; 
@@ -490,6 +500,15 @@ function standAloneBar(elSelector){
 					var infotext = 'Dimensions: ' + w.naturalWidth + 'px × ' + w.naturalHeight + 'px (naturalWidth × naturalHeight)';
 					p = document.createElement('p');
 					p.appendChild(document.createTextNode(infotext));
+					if (window.performance){
+						var imgp = performance.getEntriesByName(u.href);
+						if (imgp && imgp.length > 0){
+							p = document.createElement('p');
+							p.appendChild(document.createTextNode('Size: ' + (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + '); Transfer size: ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + '); Elapsed time: ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds'));
+							di.appendChild(p);
+							
+						}
+					}
 					di.appendChild(p); // end of "new in 0.9"
 					var d = document.createElement('div');
 					d.id = 'btns_standAlone'; 
