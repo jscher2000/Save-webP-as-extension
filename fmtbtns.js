@@ -8,6 +8,7 @@
   version 0.9 - image info, bug fixes
   version 0.9.1 - option to show the stand-alone bar automatically only for image/webp
   version 0.9.2 - add performance info (size, timing)
+  version 0.9.3 - bug fixes
 */
 
 /**** Create and populate data structure ****/
@@ -250,7 +251,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						di.appendChild(p);
 						p = document.createElement('p');
 						if (docct.indexOf('image/') === 0){ // stand-alone
-							p.appendChild(document.createTextNode('Type: ' + document.contentType + ' (from document.contentType)'));
+							p.appendChild(document.createTextNode('Type: ' + document.contentType.slice(document.contentType.indexOf('/')+1).toUpperCase() + ' (document.contentType=' + document.contentType + ')'));
 						} else { //inline
 							p.appendChild(document.createTextNode('Type: (unknown)'));
 							if (!expandinfo) di.style.display = 'none';
@@ -265,23 +266,23 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						p = document.createElement('p');
 						p.appendChild(document.createTextNode(infotext));
 						di.appendChild(p);
+						if (window.performance){
+							var imgp = performance.getEntriesByName(u.href);
+							if (imgp && imgp.length > 0){
+								p = document.createElement('p');
+								p.appendChild(document.createTextNode('Size: ' + (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + ') (transferred ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + ') in ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds)'));
+								di.appendChild(p);
+								
+							}
+						}
+						di.appendChild(p);
 						if (docct.indexOf('image/') === -1){
 							if (w.getAttribute('alt')){
 								p = document.createElement('p');
 								p.appendChild(document.createTextNode('Alt text: ' + w.getAttribute('alt')));
 								di.appendChild(p);
 							}
-						}
-						if (window.performance){
-							var imgp = performance.getEntriesByName(u.href);
-							if (imgp && imgp.length > 0){
-								p = document.createElement('p');
-								p.appendChild(document.createTextNode('Size: ' + (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + '); Transfer size: ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + '); Elapsed time: ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds'));
-								di.appendChild(p);
-								
-							}
-						}
-						di.appendChild(p); // end of "new in 0.9"
+						} // end of "new in 0.9"
 						var d = document.createElement('div');
 						d.id = 'btns_${menuInfo.targetElementId}'; 
 						d.className = 'saveWebPasbtns';
@@ -495,21 +496,21 @@ function standAloneBar(elSelector){
 					p.appendChild(document.createTextNode('Location: ' + u.href));
 					di.appendChild(p);
 					p = document.createElement('p');
-					p.appendChild(document.createTextNode('Type: ' + document.contentType + ' (from document.contentType)'));
+					p.appendChild(document.createTextNode('Type: ' + document.contentType.slice(document.contentType.indexOf('/')+1).toUpperCase() + ' (document.contentType=' + document.contentType + ')'));
 					di.appendChild(p);
-					var infotext = 'Dimensions: ' + w.naturalWidth + 'px × ' + w.naturalHeight + 'px (naturalWidth × naturalHeight)';
+					var infotext = 'Dimensions: ' + w.naturalWidth + 'px × ' + w.naturalHeight + 'px';
 					p = document.createElement('p');
 					p.appendChild(document.createTextNode(infotext));
+					di.appendChild(p);
 					if (window.performance){
 						var imgp = performance.getEntriesByName(u.href);
 						if (imgp && imgp.length > 0){
 							p = document.createElement('p');
-							p.appendChild(document.createTextNode('Size: ' + (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + '); Transfer size: ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + '); Elapsed time: ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds'));
+							p.appendChild(document.createTextNode('Size: ' + (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + ') (transferred ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + ') in ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds)'));
 							di.appendChild(p);
 							
 						}
-					}
-					di.appendChild(p); // end of "new in 0.9"
+					} // end of "new in 0.9"
 					var d = document.createElement('div');
 					d.id = 'btns_standAlone'; 
 					d.className = 'saveWebPasbtns';
