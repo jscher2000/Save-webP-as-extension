@@ -9,6 +9,7 @@
   version 0.9.1 - option to show the stand-alone bar automatically only for image/webp
   version 0.9.2 - add performance info (size, timing)
   version 0.9.3 - bug fixes
+  version 0.9.4 - info and button font-size adjustment, bug fixes
 */
 
 /**** Create and populate data structure ****/
@@ -42,7 +43,9 @@ var oPrefs = {
 	nameimg: false,				// Add image server into file name
 	/* Other options */
 	keepprivate: true,			// Don't add downloads from incognito to history
-	expandinfo: false			// Show info section on overlay for inline (session only)
+	expandinfo: false,			// Show info section on overlay for inline (session only)
+	infofontsize: 16,			// Font-size for info text
+	btnfontsize: 14				// Font-size for button text
 }
 
 // Register content script for automatically displayed button bar
@@ -110,6 +113,10 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 	if (axn == 'showbar'){
 		var cssfile = '/light.css';
 		if (oPrefs.btndark == true) cssfile = '/dark.css';
+		var fontsizeoverride = `body {
+			--swpas-btn-size: ${oPrefs.btnfontsize}px !important;
+			--swpas-info-size: ${oPrefs.infofontsize}px !important;
+		}`;
 		var btns = [];
 		if (oPrefs.btnpng == true) btns.push({params: 'p,1', label: 'PNG', span: null});
 		if (oPrefs.btnjpg100 == true) btns.push({params: 'j,1', label: 'JPG', span: '100'});
@@ -127,8 +134,14 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 				frameId: menuInfo.frameId,
 				cssOrigin: "user"
 		}).then(() => {
+			browser.tabs.insertCSS({
+				code: fontsizeoverride,
+				frameId: menuInfo.frameId,
+				cssOrigin: "user"
+			}).then(() => {
 			browser.tabs.executeScript({
-				code:  `/* Save webP as... v0.9 */
+				frameId: menuInfo.frameId,
+				code:  `/* Save webP as... v0.9.4 */
 						var autoclose = ${oPrefs.btnautoclose};
 						var expandinfo = ${oPrefs.expandinfo};
 						var docct = document.contentType;
@@ -177,6 +190,8 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								tgt = e.target;
 								if (!tgt.hasAttribute('params')) tgt = tgt.closest('button');
 								var params = tgt.getAttribute('params').split(',');
+								e.preventDefault();
+								e.stopPropagation();
 							} else { // force close
 								params = ['close'];
 							}
@@ -223,20 +238,23 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							if (!tgt) return;
 							var br = w.getBoundingClientRect();
 							if (docct.indexOf('image/') === 0){ // stand-alone
+								tgt.style.left = '50%';
+								tgt.style.width = '600px';
+								tgt.style.marginLeft = '-300px';
+								tgt.style.maxWidth = '90vw';
 								if (br.top > tgt.offsetHeight){
 									tgt.style.top = window.scrollY + (br.top - tgt.offsetHeight) + 'px';
 								} else {
 									tgt.style.top = '0px';
 								}
-								tgt.style.left = '50%';
-								tgt.style.width = '600px';
-								tgt.style.marginLeft = '-300px';
-								tgt.style.maxWidth = '90vw';
 								// Make sure the bar is in view
 								if (br.top < 0 || br.top > window.innerHeight) tgt.scrollIntoView();
 							} else { // overlaid inline
-								tgt.style.top = window.scrollY + br.top + 'px';
-								tgt.style.left = window.scrollX + br.left + 'px';
+								var par = w.closest('p, div, section, aside, header, main, footer, article, body');
+								par.appendChild(tgt);
+								if (window.getComputedStyle(par,null).getPropertyValue("position") == 'static') par.style.position = 'relative';
+								tgt.style.top = Math.max(br.top - par.getBoundingClientRect().top + par.scrollTop, 0) + 'px';;
+								tgt.style.left = window.scrollX + Math.max(br.left - par.getBoundingClientRect().left, 0) + 'px';
 								tgt.style.width = br.width + 'px';
 								// Make sure the bar is in view
 								if (br.top < 0 || br.top > window.innerHeight) tgt.scrollIntoView();
@@ -266,15 +284,16 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						p = document.createElement('p');
 						p.appendChild(document.createTextNode(infotext));
 						di.appendChild(p);
+						var sz = '(Not accessible)';
 						if (window.performance){
 							var imgp = performance.getEntriesByName(u.href);
-							if (imgp && imgp.length > 0){
-								p = document.createElement('p');
-								p.appendChild(document.createTextNode('Size: ' + (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + ') (transferred ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + ') in ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds)'));
-								di.appendChild(p);
-								
+							if (imgp && imgp.length > 0 && imgp[0].decodedBodySize > 0){
+								sz = (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + ')';
+								if (imgp[0].transferSize > 0) sz += ' (transferred ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + ') in ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds)';
 							}
 						}
+						p = document.createElement('p');
+						p.appendChild(document.createTextNode('Size: ' + sz));
 						di.appendChild(p);
 						if (docct.indexOf('image/') === -1){
 							if (w.getAttribute('alt')){
@@ -307,6 +326,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						d.addEventListener('click', convbtn_${menuInfo.targetElementId}, false);
 						window.addEventListener('resize', setpos_${menuInfo.targetElementId}, false);
 						'WTF'`
+				});
 			});
 		}).catch((err) => {
 			browser.tabs.executeScript({
@@ -373,11 +393,13 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 });
 
 function standAloneBar(elSelector){
-	// check for "webp only"
-	if (oPrefs.btnstalwebp && document.contentType.toLowerCase().indexOf('image/webp') < 0) return;
 	// button bar for pages with stand-alone images (TODO: limit duplication of axn="showbar")
 	var cssfile = '/light.css';
 	if (oPrefs.btndark == true) cssfile = '/dark.css';
+	var fontsizeoverride = `body {
+		--swpas-btn-size: ${oPrefs.btnfontsize}px !important;
+		--swpas-info-size: ${oPrefs.infofontsize}px !important;
+	}`;
 	var btns = [];
 	if (oPrefs.btnpng == true) btns.push({params: 'p,1', label: 'PNG', span: null});
 	if (oPrefs.btnjpg100 == true) btns.push({params: 'j,1', label: 'JPG', span: '100'});
@@ -393,147 +415,160 @@ function standAloneBar(elSelector){
 			file: cssfile,
 			cssOrigin: "user"
 	}).then(() => {
+		browser.tabs.insertCSS({
+			code: fontsizeoverride,
+			cssOrigin: "user"
+		}).then(() => {
 		browser.tabs.executeScript({
-			code:  `/* Save webP as... v0.9 */
-					var autoclose = ${oPrefs.btnautoclose};
-					// Set up variables from menu click
-					var w = document.querySelector('${elSelector}');
-					var u = new URL(w.src);
-					function convert_standAlone(el, imghost, path, fmt, ext, qual){
-						// Create new filename
-						var f = path.slice(path.lastIndexOf('/') + 1).replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
-						if (qual != 1) f += '_' + (100 * parseFloat(qual));
-						f += '.' + ext;
-						// Create canvas
-						var canv = document.createElement('canvas');
-						canv.width = w.naturalWidth;
-						canv.height = w.naturalHeight;
-						var ctx = canv.getContext('2d');
-						if (ext == 'jpg'){
-							// Match the background color (fix "white" to avoid transparency)
-							var b = window.getComputedStyle(w).getPropertyValue('background-color');
-							if (b === 'rgba(0, 0, 0, 0)') b = '#fff';
-							ctx.fillStyle = b;
-							ctx.fillRect(0, 0, canv.width, canv.height);
+			code:  `/* Save webP as... v0.9.4 */
+					// check for "webp only"
+					var webponly = ${oPrefs.btnstalwebp};
+					if (webponly == false || document.contentType.toLowerCase() == 'image/webp') {
+						var autoclose = ${oPrefs.btnautoclose};
+						// Set up variables from menu click
+						var w = document.querySelector('${elSelector}');
+						var u = new URL(w.src);
+						function convert_standAlone(el, imghost, path, fmt, ext, qual){
+							// Create new filename
+							var f = path.slice(path.lastIndexOf('/') + 1).replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
+							if (qual != 1) f += '_' + (100 * parseFloat(qual));
+							f += '.' + ext;
+							// Create canvas
+							var canv = document.createElement('canvas');
+							canv.width = w.naturalWidth;
+							canv.height = w.naturalHeight;
+							var ctx = canv.getContext('2d');
+							if (ext == 'jpg'){
+								// Match the background color (fix "white" to avoid transparency)
+								var b = window.getComputedStyle(w).getPropertyValue('background-color');
+								if (b === 'rgba(0, 0, 0, 0)') b = '#fff';
+								ctx.fillStyle = b;
+								ctx.fillRect(0, 0, canv.width, canv.height);
+							}
+							// Then add the image
+							ctx.drawImage(w, 0, 0);
+							canv.toBlob((blob) => {
+								// Send blob to background script for downloading
+								browser.runtime.sendMessage({
+									"download": {
+										cblob: blob,
+										fname: f, 
+										imghost: imghost,
+										imgpath: path,
+										pghost: location.hostname
+									}
+								})
+								.then(() => {
+									if (autoclose) convbtn_standAlone(null); // remove the bar
+								})
+								.catch((err) => {console.log('An error occurred while saving the image: '+err.message);});
+							}, fmt, qual);
 						}
-						// Then add the image
-						ctx.drawImage(w, 0, 0);
-						canv.toBlob((blob) => {
-							// Send blob to background script for downloading
-							browser.runtime.sendMessage({
-								"download": {
-									cblob: blob,
-									fname: f, 
-									imghost: imghost,
-									imgpath: path,
-									pghost: location.hostname
+						function convbtn_standAlone(e){
+							// Execute button click (save image or close)
+							if (e){
+								tgt = e.target;
+								if (!tgt.hasAttribute('params')) tgt = tgt.closest('button');
+								var params = tgt.getAttribute('params').split(',');
+								e.preventDefault();
+								e.stopPropagation();
+							} else { // force close
+								params = ['close'];
+							}
+							if (params[0] == 'p') convert_standAlone(w, u.hostname, u.pathname, 'image/png', 'png', 1);
+							else if (params[0] == 'j'){
+								convert_standAlone(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
+							} else if (params[0] == 'anigif'){
+								if (u.pathname.slice(-5).toLowerCase() == '.webp'){
+									if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
+										browser.runtime.sendMessage({"newtab": {
+												url: 'https://ezgif.com/webp-to-gif?url='+u
+											}
+										});
+									} 
+								} else if (u.pathname.slice(-4).toLowerCase() == '.gif' || u.pathname.slice(-5).toLowerCase() == '.gifv') {
+									alert('Since this is a .gif/.gifv file, try using the Page Info dialog, Media panel, to Save As in GIF format.');
+								} else {
+									alert('Wrong file type??');
 								}
-							})
-							.then(() => {
-								if (autoclose) convbtn_standAlone(null); // remove the bar
-							})
-							.catch((err) => {console.log('An error occurred while saving the image: '+err.message);});
-						}, fmt, qual);
-					}
-					function convbtn_standAlone(e){
-						// Execute button click (save image or close)
-						if (e){
-							tgt = e.target;
-							if (!tgt.hasAttribute('params')) tgt = tgt.closest('button');
-							var params = tgt.getAttribute('params').split(',');
-						} else { // force close
-							params = ['close'];
+							} else if (params[0] == 'options'){
+								browser.runtime.sendMessage({"options": "show"});
+							} else if (params[0] == 'close'){
+								var bar = document.getElementById('btns_standAlone');
+								if (bar){
+									bar.removeEventListener('click', convbtn_standAlone, false);
+									bar.remove();
+								}
+								window.removeEventListener('resize', setpos_standAlone, false);
+							}
 						}
-						if (params[0] == 'p') convert_standAlone(w, u.hostname, u.pathname, 'image/png', 'png', 1);
-						else if (params[0] == 'j'){
-							convert_standAlone(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
-						} else if (params[0] == 'anigif'){
-							if (u.pathname.slice(-5).toLowerCase() == '.webp'){
-								if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
-									browser.runtime.sendMessage({"newtab": {
-											url: 'https://ezgif.com/webp-to-gif?url='+u
-										}
-									});
-								} 
-							} else if (u.pathname.slice(-4).toLowerCase() == '.gif' || u.pathname.slice(-5).toLowerCase() == '.gifv') {
-								alert('Since this is a .gif/.gifv file, try using the Page Info dialog, Media panel, to Save As in GIF format.');
+						function setpos_standAlone(e){
+							// Line up the button bar with the top of the image
+							var tgt = document.getElementById('btns_standAlone');
+							if (!tgt) return;
+							var br = w.getBoundingClientRect();
+							tgt.style.left = '50%';
+							tgt.style.width = '600px';
+							tgt.style.marginLeft = '-300px';
+							tgt.style.maxWidth = '90vw';
+							if (br.top > tgt.offsetHeight){
+								tgt.style.top = window.scrollY + (br.top - tgt.offsetHeight) + 'px';
 							} else {
-								alert('Wrong file type??');
+								tgt.style.top = '0px';
 							}
-						} else if (params[0] == 'options'){
-							browser.runtime.sendMessage({"options": "show"});
-						} else if (params[0] == 'close'){
-							var bar = document.getElementById('btns_standAlone');
-							if (bar){
-								bar.removeEventListener('click', convbtn_standAlone, false);
-								bar.remove();
+							// Make sure the bar is in view
+							if (br.top < 0 || br.top > window.innerHeight) tgt.scrollIntoView();
+						}
+						// Create button bar/info panel and position it
+						var di = document.createElement('div'); // start of "new in 0.9"
+						di.id = 'info_standAlone'; 
+						di.className = 'saveWebPasInfo';
+						var p = document.createElement('p');
+						p.appendChild(document.createTextNode('Location: ' + u.href));
+						di.appendChild(p);
+						p = document.createElement('p');
+						p.appendChild(document.createTextNode('Type: ' + document.contentType.slice(document.contentType.indexOf('/')+1).toUpperCase() + ' (document.contentType=' + document.contentType + ')'));
+						di.appendChild(p);
+						var infotext = 'Dimensions: ' + w.naturalWidth + 'px × ' + w.naturalHeight + 'px';
+						p = document.createElement('p');
+						p.appendChild(document.createTextNode(infotext));
+						di.appendChild(p);
+						var sz = '(Not accessible)';
+						if (window.performance){
+							var imgp = performance.getEntriesByName(u.href);
+							if (imgp && imgp.length > 0 && imgp[0].decodedBodySize > 0){
+								sz = (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + ')';
+								if (imgp[0].transferSize > 0) sz += ' (transferred ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + ') in ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds)';
 							}
-							window.removeEventListener('resize', setpos_standAlone, false);
 						}
+						p = document.createElement('p');
+						p.appendChild(document.createTextNode('Size: ' + sz));
+						di.appendChild(p); // end of "new in 0.9"
+						var d = document.createElement('div');
+						d.id = 'btns_standAlone'; 
+						d.className = 'saveWebPasbtns';
+						d.appendChild(di);
+						var btns = ${JSON.stringify(btns)};
+						for (var i=0; i<btns.length; i++){
+							var b = document.createElement('button');
+							b.setAttribute('params', btns[i].params);
+							b.appendChild(document.createTextNode(btns[i].label));
+							if (btns[i].span){
+								var s = document.createElement('span');
+								s.appendChild(document.createTextNode(btns[i].span));
+								b.appendChild(s);
+							}
+							d.appendChild(b);
+						}
+						document.body.appendChild(d);
+						if (document.querySelectorAll('#btns_standAlone').length > 1) document.querySelectorAll('#btns_standAlone')[0].remove();
+						setpos_standAlone();
+						// Set up event listeners
+						d.addEventListener('click', convbtn_standAlone, false);
+						window.addEventListener('resize', setpos_standAlone, false);
 					}
-					function setpos_standAlone(e){
-						// Line up the button bar with the top of the image
-						var tgt = document.getElementById('btns_standAlone');
-						if (!tgt) return;
-						var br = w.getBoundingClientRect();
-						if (br.top > tgt.offsetHeight){
-							tgt.style.top = window.scrollY + (br.top - tgt.offsetHeight) + 'px';
-						} else {
-							tgt.style.top = '0px';
-						}
-						tgt.style.left = '50%';
-						tgt.style.width = '600px';
-						tgt.style.marginLeft = '-300px';
-						tgt.style.maxWidth = '90vw';
-						// Make sure the bar is in view
-						if (br.top < 0 || br.top > window.innerHeight) tgt.scrollIntoView();
-					}
-					// Create button bar/info panel and position it
-					var di = document.createElement('div'); // start of "new in 0.9"
-					di.id = 'info_standAlone'; 
-					di.className = 'saveWebPasInfo';
-					var p = document.createElement('p');
-					p.appendChild(document.createTextNode('Location: ' + u.href));
-					di.appendChild(p);
-					p = document.createElement('p');
-					p.appendChild(document.createTextNode('Type: ' + document.contentType.slice(document.contentType.indexOf('/')+1).toUpperCase() + ' (document.contentType=' + document.contentType + ')'));
-					di.appendChild(p);
-					var infotext = 'Dimensions: ' + w.naturalWidth + 'px × ' + w.naturalHeight + 'px';
-					p = document.createElement('p');
-					p.appendChild(document.createTextNode(infotext));
-					di.appendChild(p);
-					if (window.performance){
-						var imgp = performance.getEntriesByName(u.href);
-						if (imgp && imgp.length > 0){
-							p = document.createElement('p');
-							p.appendChild(document.createTextNode('Size: ' + (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + ') (transferred ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + ') in ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds)'));
-							di.appendChild(p);
-							
-						}
-					} // end of "new in 0.9"
-					var d = document.createElement('div');
-					d.id = 'btns_standAlone'; 
-					d.className = 'saveWebPasbtns';
-					d.appendChild(di);
-					var btns = ${JSON.stringify(btns)};
-					for (var i=0; i<btns.length; i++){
-						var b = document.createElement('button');
-						b.setAttribute('params', btns[i].params);
-						b.appendChild(document.createTextNode(btns[i].label));
-						if (btns[i].span){
-							var s = document.createElement('span');
-							s.appendChild(document.createTextNode(btns[i].span));
-							b.appendChild(s);
-						}
-						d.appendChild(b);
-					}
-					document.body.appendChild(d);
-					if (document.querySelectorAll('#btns_standAlone').length > 1) document.querySelectorAll('#btns_standAlone')[0].remove();
-					setpos_standAlone();
-					// Set up event listeners
-					d.addEventListener('click', convbtn_standAlone, false);
-					window.addEventListener('resize', setpos_standAlone, false);
 					'WTF'`
+			});
 		});
 	}).catch((err) => {
 		browser.tabs.executeScript({

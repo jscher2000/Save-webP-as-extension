@@ -7,6 +7,7 @@
   version 0.8 - animated GIF option (via ezgif.com), automatic bar display option
   version 0.9 - image info, bug fixes
   version 0.9.1 - option to show the stand-alone bar automatically only for image/webp
+  version 0.9.4 - info and button font-size adjustment, bug fixes
 */
 
 /*** Initialize Page ***/
@@ -40,7 +41,9 @@ var oSettings = {
 	nameimg: false,				// Add image server into file name
 	/* Other options */
 	keepprivate: true,			// Don't add downloads from incognito to history
-	expandinfo: false			// Show info section on overlay for inline (session only)
+	expandinfo: false,			// Show info section on overlay for inline (session only)
+	infofontsize: 16,			// Font-size for info text
+	btnfontsize: 14				// Font-size for button text
 }
 
 // Update oSettings from storage
@@ -55,9 +58,15 @@ browser.storage.local.get("prefs").then( (results) => {
 	}
 }).then(() => {
 	// Context menu select's
-	var sels = document.querySelectorAll('select');
+	var sels = document.querySelectorAll('select[name^="menu"]');
 	for (var i=0; i<sels.length; i++){
 		var selopt = document.querySelector('select[name="' + sels[i].name + '"] option[value="' + oSettings[sels[i].name] + '"]');
+		selopt.setAttribute('selected', 'selected');
+	}
+	// Font size selects
+	sels = document.querySelectorAll('select[name*="fontsize"]');
+	for (var i=0; i<sels.length; i++){
+		var selopt = document.querySelector('select[name="' + sels[i].name + '"] option[value="size' + oSettings[sels[i].name] + '"]');
 		selopt.setAttribute('selected', 'selected');
 	}
 	// Checkboxes
@@ -103,9 +112,14 @@ browser.storage.local.get("prefs").then( (results) => {
 function updatePref(evt){
 	if (evt.target.className != 'savebtn') return;
 	// Context menu select's
-	var sels = document.querySelectorAll('select');
+	var sels = document.querySelectorAll('select[name^="menu"]');
 	for (var i=0; i<sels.length; i++){
 		oSettings[sels[i].name] = sels[i].value;
+	}
+	// Font size selects
+	sels = document.querySelectorAll('select[name*="fontsize"]');
+	for (var i=0; i<sels.length; i++){
+		oSettings[sels[i].name] = parseInt(sels[i].value.slice(4));
 	}
 	// Checkboxes
 	var chks = document.querySelectorAll('.chk input[type="checkbox"]');
@@ -243,12 +257,22 @@ function lightSaveBtn(evt){
 			}
 			break;
 		case 'select-one':
-			if (evt.target.value !== oSettings[evt.target.name]){
-				chgCount++;
-				evt.target.labels[0].style.backgroundColor = '#ff0';
-			} else {
-				chgCount--;
-				evt.target.labels[0].style.backgroundColor = '';
+			if (evt.target.name.indexOf('menu') > -1){
+				if (evt.target.value !== oSettings[evt.target.name]){
+					chgCount++;
+					evt.target.labels[0].style.backgroundColor = '#ff0';
+				} else {
+					chgCount--;
+					evt.target.labels[0].style.backgroundColor = '';
+				}
+			} else if (evt.target.name.indexOf('fontsize') > -1){
+				if (evt.target.value !== 'size' + oSettings[evt.target.name]){
+					chgCount++;
+					evt.target.labels[0].style.backgroundColor = '#ff0';
+				} else {
+					chgCount--;
+					evt.target.labels[0].style.backgroundColor = '';
+				}
 			}
 			break;
 		default:

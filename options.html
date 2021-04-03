@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Options for Save webP as PNG or JPEG v0.9.1</title>
+<title>Options for Save webP as PNG or JPEG v0.9.4</title>
 <style>
 body {margin: 8px 16px; background-color: #dff; font-size: 16px;}
 h1, h2 {position: relative; margin-bottom: 0;}
@@ -59,9 +59,22 @@ p[linear] label:first-of-type { margin-left: 24px; }
 	<p>Auto-close and Auto-open:</p>
 		<p class="chk"><label><input type="checkbox" name="btnautoclose"> Remove bar after downloading image</label><br>
 		<label><input type="checkbox" name="btnstandalone"> Open bar automatically on stand-alone web images</label> (<label style="margin-left:0;"><input type="checkbox" name="btnstalwebp"> image/webp only</label>)</p>
-	<p>Color scheme:</p>
+	<p>Color scheme and font size:</p>
 		<p class="rad"><label><input type="radio" name="radColors" value="light"> Light background</label><br> 
 		<label><input type="radio" name="radColors" value="dark"> Dark background</label></p>
+		<p><label>Button text: <select name="btnfontsize">
+			<option value="size12">12px</option>
+			<option value="size13">13px</option>
+			<option value="size14">14px</option>
+			<option value="size15">15px</option>
+			<option value="size16">16px</option>
+		</select></label> <label>Info panel text: <select name="infofontsize">
+			<option value="size12">12px</option>
+			<option value="size13">13px</option>
+			<option value="size14">14px</option>
+			<option value="size15">15px</option>
+			<option value="size16">16px</option>
+		</select></label>
 </section>
 <section>
 	<h2>Save Dialog / AutoSave Options<button type="button" id="btnSave2" class="savebtn">Save Changes</button></h2>
