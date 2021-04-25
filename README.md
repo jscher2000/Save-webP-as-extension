@@ -7,4 +7,4 @@ URL on AMO: https://addons.mozilla.org/firefox/addon/save-webp-as-png-or-jpeg/
 
 ![Image of context menu](screenshots/context-menu_0.5_png_92.jpg)
 
-![Image of format buttons](screenshots/format-buttons_0.9.png)
+![Image of format buttons](screenshots/format-buttons_1.0.png)
