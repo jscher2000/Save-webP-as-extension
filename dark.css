@@ -1,4 +1,4 @@
-/* Save webP as PNG or JPEG v0.9.4 */
+/* Save webP as PNG or JPEG v1.0 */
 body {
 	--swpas-btn-size: 14px;
 	--swpas-info-size: 16px;
@@ -10,9 +10,10 @@ body {
 	min-width: 300px;
 }
 .saveWebPasbtns button{
-	-moz-appearance: none; font-family: sans-serif !important; font-weight: 500 !important; font-size: var(--swpas-btn-size) !important; cursor: pointer !important;
+	-moz-appearance: none !important; font-family: sans-serif !important; font-weight: 500 !important; font-size: var(--swpas-btn-size) !important; cursor: pointer !important;
 	line-height: 30px !important; height: 31px !important; border-radius: 4px !important; padding: 0 8px !important; margin: 2px 4px 0 0 !important; 
 	color: #f90 !important; background-color: #333 !important; border: 1px solid #f90 !important; box-shadow: -1px -1px 6px 0px #333, 1px 1px 6px 0px #333 !important;
+	-webkit-appearance: none !important; appearance: none !important;
 }
 .saveWebPasbtns > span{
 	font-family: sans-serif !important; font-weight: 400 !important; font-size: var(--swpas-btn-size) !important; 

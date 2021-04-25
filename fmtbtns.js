@@ -10,6 +10,7 @@
   version 0.9.2 - add performance info (size, timing)
   version 0.9.3 - bug fixes
   version 0.9.4 - info and button font-size adjustment, bug fixes
+  version 1.0 - Save as IE 11 button
 */
 
 /**** Create and populate data structure ****/
@@ -27,6 +28,7 @@ var oPrefs = {
 	btnjpg85: true,				// show JPG 85% button
 	btnjpg80: true,				// show JPG 80% button
 	btnjpg75: true,				// show JPG 75% button
+	btnsaveasie: true,			// show Save as IE 11 button
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
 	btnstandalone: true,		// show bar automatically on image pages
@@ -124,7 +126,8 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 		if (oPrefs.btnjpg85 == true) btns.push({params: 'j,0.85', label: 'JPG', span: '85%'});
 		if (oPrefs.btnjpg80 == true) btns.push({params: 'j,0.80', label: 'JPG', span: '80%'});
 		if (oPrefs.btnjpg75 == true) btns.push({params: 'j,0.75', label: 'JPG', span: '75%'});
-		btns.push({params: 'anigif', label: 'GIF(V)', span: null});
+		if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE11'});
+		if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null});
 		btns.push({params: 'info', label: 'ℹ️', span: null});
 		btns.push({params: 'options', label: '⚙️', span: null});
 		btns.push({params: 'close', label: 'X', span: null});
@@ -141,7 +144,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 			}).then(() => {
 			browser.tabs.executeScript({
 				frameId: menuInfo.frameId,
-				code:  `/* Save webP as... v0.9.4 */
+				code:  `/* Save webP as... v1.0 */
 						var autoclose = ${oPrefs.btnautoclose};
 						var expandinfo = ${oPrefs.expandinfo};
 						var docct = document.contentType;
@@ -195,7 +198,12 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							} else { // force close
 								params = ['close'];
 							}
-							if (params[0] == 'p'){
+							if (params[0] == 'rr'){ // [v1.0]
+								var newloc = new URL(u.href);
+								if (newloc.search.length == 0) newloc.search = '?swapjIE11=0';
+								else newloc.search += '&swapjIE11=0';
+								location.href = newloc.href;
+							} else if (params[0] == 'p'){
 								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'png', 1);
 							} else if (params[0] == 'j'){
 								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
@@ -407,7 +415,8 @@ function standAloneBar(elSelector){
 	if (oPrefs.btnjpg85 == true) btns.push({params: 'j,0.85', label: 'JPG', span: '85%'});
 	if (oPrefs.btnjpg80 == true) btns.push({params: 'j,0.80', label: 'JPG', span: '80%'});
 	if (oPrefs.btnjpg75 == true) btns.push({params: 'j,0.75', label: 'JPG', span: '75%'});
-	btns.push({params: 'anigif', label: 'GIF(V)', span: null});
+	if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE11'});
+	if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null});
 	btns.push({params: 'options', label: '⚙️', span: null});
 	btns.push({params: 'close', label: 'X', span: null});
 
@@ -420,7 +429,7 @@ function standAloneBar(elSelector){
 			cssOrigin: "user"
 		}).then(() => {
 		browser.tabs.executeScript({
-			code:  `/* Save webP as... v0.9.4 */
+			code:  `/* Save webP as... v1.0 */
 					// check for "webp only"
 					var webponly = ${oPrefs.btnstalwebp};
 					if (webponly == false || document.contentType.toLowerCase() == 'image/webp') {
@@ -475,7 +484,17 @@ function standAloneBar(elSelector){
 							} else { // force close
 								params = ['close'];
 							}
-							if (params[0] == 'p') convert_standAlone(w, u.hostname, u.pathname, 'image/png', 'png', 1);
+							if (params[0] == 'rr'){ // [v1.0]
+								var newloc = new URL(u.href);
+								if (newloc.search.length == 0) newloc.search = '?swapjIE11=0';
+								else newloc.search += '&swapjIE11=0';
+								location.href = newloc.href;
+							} else if (params[0] == 'rr'){ // [v1.0]
+								var newloc = new URL(u.href);
+								if (newloc.search.length == 0) newloc.search = '?swapjIE11=0';
+								else newloc.search += '&swapjIE11=0';
+								location.href = newloc.href;
+							} else if (params[0] == 'p') convert_standAlone(w, u.hostname, u.pathname, 'image/png', 'png', 1);
 							else if (params[0] == 'j'){
 								convert_standAlone(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
 							} else if (params[0] == 'anigif'){
@@ -508,8 +527,8 @@ function standAloneBar(elSelector){
 							if (!tgt) return;
 							var br = w.getBoundingClientRect();
 							tgt.style.left = '50%';
-							tgt.style.width = '600px';
-							tgt.style.marginLeft = '-300px';
+							tgt.style.width = '640px';
+							tgt.style.marginLeft = '-320px';
 							tgt.style.maxWidth = '90vw';
 							if (br.top > tgt.offsetHeight){
 								tgt.style.top = window.scrollY + (br.top - tgt.offsetHeight) + 'px';

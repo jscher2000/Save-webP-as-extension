@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Save webP as PNG or JPEG",
     "description": "Convert webP images to PNG or JPEG (with choice of quality) for downloading. Right-click context menu calls up format options overlaid on the image.",
-    "version": "0.9.4",
+    "version": "1.0",
 	"applications":{
 		"gecko": {
 			"id": "savewebpas@jeffersonscher.com",
@@ -15,14 +15,17 @@
 	},
 	"background": {
 		"scripts": [
-			"fmtbtns.js"
+			"fmtbtns.js",
+			"save-webp-as-webrequest.js"
 		]
 	},
 	"permissions": [
 		"<all_urls>",
 		"downloads",
 		"menus",
-		"storage"
+		"storage",
+		"webRequest",
+		"webRequestBlocking"
 	],
 	"icons": {
 		"128": "img/smiley128.png"

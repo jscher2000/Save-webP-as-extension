@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Options for Save webP as PNG or JPEG v0.9.4</title>
+<title>Options for Save webP as PNG or JPEG v1.0</title>
 <style>
 body {margin: 8px 16px; background-color: #dff; font-size: 16px;}
 h1, h2 {position: relative; margin-bottom: 0;}
@@ -10,6 +10,7 @@ h1 {margin-top: 4px;}
 .savebtn {position: absolute; top: 0; left: 420px; margin-top: 8px;}
 p:not([linear]) label { margin-left: 24px; }
 p[linear] label:first-of-type { margin-left: 24px; }
+.changed { background-color: #ff0; }
 </style>
 </head>
 <body>
@@ -55,7 +56,8 @@ p[linear] label:first-of-type { margin-left: 24px; }
 		<label><input type="checkbox" name="btnjpg85" value="jpg85">JPG 85%</label> 
 		<label><input type="checkbox" name="btnjpg80" value="jpg80">JPG 80%</label> 
 		<label><input type="checkbox" name="btnjpg75" value="jpg75">JPG 75%</label><br>
-		<label style="margin-left: 24px;"><input type="checkbox" name="btnanigif" value="jpg75">Animated GIF (via ezgif.com)</label></p>
+		<label style="margin-left: 24px;"><input type="checkbox" name="btnsaveasie" value="">Save as IE 11</label>
+		<label><input type="checkbox" name="btnanigif" value="">Animated WebP (via ezgif.com)</label></p>
 	<p>Auto-close and Auto-open:</p>
 		<p class="chk"><label><input type="checkbox" name="btnautoclose"> Remove bar after downloading image</label><br>
 		<label><input type="checkbox" name="btnstandalone"> Open bar automatically on stand-alone web images</label> (<label style="margin-left:0;"><input type="checkbox" name="btnstalwebp"> image/webp only</label>)</p>

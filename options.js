@@ -8,6 +8,7 @@
   version 0.9 - image info, bug fixes
   version 0.9.1 - option to show the stand-alone bar automatically only for image/webp
   version 0.9.4 - info and button font-size adjustment, bug fixes
+  version 1.0 - Save as IE 11 button
 */
 
 /*** Initialize Page ***/
@@ -25,6 +26,7 @@ var oSettings = {
 	btnjpg85: true,				// show JPG 85% button
 	btnjpg80: true,				// show JPG 80% button
 	btnjpg75: true,				// show JPG 75% button
+	btnsaveasie: true,			// show Save as IE 11 button
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
 	btnstandalone: true,		// show bar automatically on image pages
@@ -178,15 +180,12 @@ function lightSaveBtn(evt){
 	if (!['INPUT', 'SELECT'].includes(evt.target.nodeName)) return;
 	var chgd = false;
 	var frm = evt.target.closest('form');
-	var chgCount = frm.getAttribute('chgcount');
 	switch (evt.target.type){
 		case 'checkbox':
 			if (evt.target.checked !== oSettings[evt.target.name]){
-				chgCount++;
-				evt.target.labels[0].style.backgroundColor = '#ff0';
+				evt.target.labels[0].className = 'changed';
 			} else {
-				chgCount--;
-				evt.target.labels[0].style.backgroundColor = '';
+				evt.target.labels[0].className = '';
 			}
 			break;
 		case 'radio':
@@ -242,46 +241,40 @@ function lightSaveBtn(evt){
 					break;
 			}
 			if (chgd){
-				chgCount++;
 				var rads = frm.querySelectorAll('input[name="' + evt.target.name + '"]');
 				for (var i=0; i<rads.length; i++){
-					if (rads[i].getAttribute('value') == evt.target.getAttribute('value')) rads[i].labels[0].style.backgroundColor = '#ff0';
-					else rads[i].labels[0].style.backgroundColor = '';
+					if (rads[i].getAttribute('value') == evt.target.getAttribute('value')) rads[i].labels[0].className = 'changed';
+					else rads[i].labels[0].className = '';
 				}
 			} else {
-				chgCount--;
 				var rads = frm.querySelectorAll('input[name="' + evt.target.name + '"]');
 				for (var i=0; i<rads.length; i++){
-					rads[i].labels[0].style.backgroundColor = '';
+					rads[i].labels[0].className = '';
 				}
 			}
 			break;
 		case 'select-one':
 			if (evt.target.name.indexOf('menu') > -1){
 				if (evt.target.value !== oSettings[evt.target.name]){
-					chgCount++;
-					evt.target.labels[0].style.backgroundColor = '#ff0';
+					evt.target.labels[0].className = 'changed';
 				} else {
-					chgCount--;
-					evt.target.labels[0].style.backgroundColor = '';
+					evt.target.labels[0].className = '';
 				}
 			} else if (evt.target.name.indexOf('fontsize') > -1){
 				if (evt.target.value !== 'size' + oSettings[evt.target.name]){
-					chgCount++;
-					evt.target.labels[0].style.backgroundColor = '#ff0';
+					evt.target.labels[0].className = 'changed';
 				} else {
-					chgCount--;
-					evt.target.labels[0].style.backgroundColor = '';
+					evt.target.labels[0].className = '';
 				}
 			}
 			break;
 		default:
 			// none of these 
 	}
-	frm.setAttribute('chgcount', chgCount);
 	var btns = frm.getElementsByClassName('savebtn');
+	var changelabels = frm.querySelectorAll('label.changed');
 	for (i=0; i<btns.length; i++){
-		if (chgCount > 0) btns[i].style.backgroundColor = '#ff0';
+		if (changelabels.length > 0) btns[i].style.backgroundColor = '#ff0';
 		else btns[i].style.backgroundColor = '';
 	}
 }
