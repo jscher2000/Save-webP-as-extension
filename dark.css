@@ -1,4 +1,4 @@
-/* Save webP as PNG or JPEG v1.0 */
+/* Save webP as PNG or JPEG v1.0.1 */
 body {
 	--swpas-btn-size: 14px;
 	--swpas-info-size: 16px;
@@ -28,6 +28,7 @@ body {
 }
 .saveWebPasInfo {
 	background-color: #333 !important;
+	color: #fdb !important; 
 	text-align: left !important;
 	padding: 4px 12px;
 	border-radius: 4px !important;
