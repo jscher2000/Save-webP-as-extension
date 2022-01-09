@@ -9,6 +9,7 @@
   version 0.9.1 - option to show the stand-alone bar automatically only for image/webp
   version 0.9.4 - info and button font-size adjustment, bug fixes
   version 1.0 - Save as IE 11 button
+  version 1.1 - File naming fixes (make original extension and JPEG quality optional, fix missing file name bug)
 */
 
 /*** Initialize Page ***/
@@ -30,13 +31,15 @@ var oSettings = {
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
 	btnstandalone: true,		// show bar automatically on image pages
-	btnstalwebp: false,			//   above feature is for image/webp only
+	btnstalwebp: false,			//   above feature is for image/webp and image/avif only
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
 	usefolder: true,			// subfolder for download
 	customfolder: null,			// custom subfolder name
 	subfolder: 'none',			// Date/Host/ImgServer/None
+	nameorigext: true,			// Add original extension (e.g., _png) to file name
+	namequality: true,			// Add JPEG quality (e.g., _92) to file name
 	namedate: false,			// Add date into file name
 	nametime: false,			// Add time into file name
 	namehost: false,			// Add host into file name
@@ -160,7 +163,7 @@ function updatePref(evt){
 		// Clean up highlighting
 		var lbls = document.querySelectorAll('label');
 		for (var i=0; i<lbls.length; i++){
-			lbls[i].style.backgroundColor = '';
+			lbls[i].className = '';
 		}
 		var btns = document.getElementsByClassName('savebtn');
 		for (i=0; i<btns.length; i++){

@@ -11,6 +11,7 @@
   version 0.9.3 - bug fixes
   version 0.9.4 - info and button font-size adjustment, bug fixes
   version 1.0 - Save as IE 11 button
+  version 1.1 - File naming fixes (make original extension and JPEG quality optional, fix missing file name bug)
 */
 
 /**** Create and populate data structure ****/
@@ -32,13 +33,15 @@ var oPrefs = {
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
 	btnstandalone: true,		// show bar automatically on image pages
-	btnstalwebp: false,			//   above feature is for image/webp only
+	btnstalwebp: false,			//   above feature is for image/webp and image/avif only
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
 	usefolder: true,			// subfolder for download
 	customfolder: null,			// custom subfolder name
 	subfolder: 'none',			// Date/Host/ImgServer/None
+	nameorigext: true,			// Add original extension (e.g., _png) to file name
+	namequality: true,			// Add JPEG quality (e.g., _92) to file name
 	namedate: false,			// Add date into file name
 	nametime: false,			// Add time into file name
 	namehost: false,			// Add host into file name
@@ -144,17 +147,23 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 			}).then(() => {
 			browser.tabs.executeScript({
 				frameId: menuInfo.frameId,
-				code:  `/* Save webP as... v1.0 */
+				code:  `/* Save webP as... v1.1 */
 						var autoclose = ${oPrefs.btnautoclose};
 						var expandinfo = ${oPrefs.expandinfo};
+						var nameorigext = ${oPrefs.nameorigext};
+						var namequality = ${oPrefs.namequality};
 						var docct = document.contentType;
 						// Set up variables from menu click
 						var w = browser.menus.getTargetElement(${menuInfo.targetElementId});
 						var u = new URL('${menuInfo.srcUrl}');
 						function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 							// Create new filename
-							var f = path.slice(path.lastIndexOf('/') + 1).replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
-							if (qual != 1) f += '_' + (100 * parseFloat(qual));
+							var f = path.slice(path.lastIndexOf('/') + 1);
+							if (f.length === 0) f = 'swpas_temp';
+							if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
+							if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
+							else f = f.replace(/\.webp/i, '').replace(/\.png/i, '').replace(/\.jpg/i, '').replace(/\.gif/i, '');
+							if (qual != 1 && namequality == true) f += '_' + (100 * parseFloat(qual));
 							f += '.' + ext;
 							// Create canvas
 							var canv = document.createElement('canvas');
@@ -343,14 +352,20 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 		});
 	} else { // Use the specified format and quality
 		browser.tabs.executeScript({
-			code:  `/* Save webP as... v0.8 */
+			code:  `/* Save webP as... v1.1 */
+					var nameorigext = ${oPrefs.nameorigext};
+					var namequality = ${oPrefs.namequality};
 					// Set up variables from menu click
 					var w = browser.menus.getTargetElement(${menuInfo.targetElementId});
 					var u = new URL('${menuInfo.srcUrl}');
 					function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 						// Create new filename
-						var f = path.slice(path.lastIndexOf('/') + 1).replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
-						if (qual != 1) f += '_' + (100 * parseFloat(qual));
+						var f = path.slice(path.lastIndexOf('/') + 1);
+						if (f.length === 0) f = 'swpas_temp';
+						if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
+						if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
+						else f = f.replace(/\.webp/i, '').replace(/\.png/i, '').replace(/\.jpg/i, '').replace(/\.gif/i, '');
+						if (qual != 1 && namequality == true) f += '_' + (100 * parseFloat(qual));
 						f += '.' + ext;
 						// Create canvas
 						var canv = document.createElement('canvas');
@@ -429,18 +444,24 @@ function standAloneBar(elSelector){
 			cssOrigin: "user"
 		}).then(() => {
 		browser.tabs.executeScript({
-			code:  `/* Save webP as... v1.0 */
+			code:  `/* Save webP as... v1.1 */
 					// check for "webp only"
 					var webponly = ${oPrefs.btnstalwebp};
-					if (webponly == false || document.contentType.toLowerCase() == 'image/webp') {
+					if (webponly == false || document.contentType.toLowerCase() == 'image/webp' || document.contentType.toLowerCase() == 'image/avif') {
 						var autoclose = ${oPrefs.btnautoclose};
+						var nameorigext = ${oPrefs.nameorigext};
+						var namequality = ${oPrefs.namequality};
 						// Set up variables from menu click
 						var w = document.querySelector('${elSelector}');
 						var u = new URL(w.src);
 						function convert_standAlone(el, imghost, path, fmt, ext, qual){
 							// Create new filename
-							var f = path.slice(path.lastIndexOf('/') + 1).replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
-							if (qual != 1) f += '_' + (100 * parseFloat(qual));
+							var f = path.slice(path.lastIndexOf('/') + 1);
+							if (f.length === 0) f = 'swpas_temp';
+							if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
+							if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
+							else f = f.replace(/\.webp/i, '').replace(/\.png/i, '').replace(/\.jpg/i, '').replace(/\.gif/i, '');
+							if (qual != 1 && namequality == true) f += '_' + (100 * parseFloat(qual));
 							f += '.' + ext;
 							// Create canvas
 							var canv = document.createElement('canvas');
@@ -625,8 +646,16 @@ function handleMessage(request, sender, sendResponse){
 		}
 		// File name options
 		var fname = request.download.fname;
-		if (oPrefs.namehost && request.download.pghost.length > 0){
-			fname = fname.slice(0, fname.length-4) + '_(' + request.download.pghost + ')' + fname.slice(-4);
+		if (fname.indexOf('swpas_temp') === 0){		// v1.1 embed hostname if possible when file is unnamed
+			if (request.download.pghost.length > 0){
+				fname = fname.replace('swpas_temp', 'unnamed_file_from_' + request.download.pghost + fname.slice(-4));
+			} else {
+				fname = fname.replace('swpas_temp', 'unnamed_file');
+			}
+		} else {
+			if (oPrefs.namehost && request.download.pghost.length > 0){
+				fname = fname.slice(0, fname.length-4) + '_(' + request.download.pghost + ')' + fname.slice(-4);
+			}
 		}
 		if (oPrefs.nameimg && request.download.imghost.length > 0){
 			fname = fname.slice(0, fname.length-4) + '_[' + request.download.imghost + ']' + fname.slice(-4);

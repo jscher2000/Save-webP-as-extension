@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Options for Save webP as PNG or JPEG v1.0</title>
+<title>Options for Save webP as PNG or JPEG v1.1</title>
 <style>
 body {margin: 8px 16px; background-color: #dff; font-size: 16px;}
 h1, h2 {position: relative; margin-bottom: 0;}
@@ -60,7 +60,7 @@ p[linear] label:first-of-type { margin-left: 24px; }
 		<label><input type="checkbox" name="btnanigif" value="">Animated WebP (via ezgif.com)</label></p>
 	<p>Auto-close and Auto-open:</p>
 		<p class="chk"><label><input type="checkbox" name="btnautoclose"> Remove bar after downloading image</label><br>
-		<label><input type="checkbox" name="btnstandalone"> Open bar automatically on stand-alone web images</label> (<label style="margin-left:0;"><input type="checkbox" name="btnstalwebp"> image/webp only</label>)</p>
+		<label><input type="checkbox" name="btnstandalone"> Open bar automatically on stand-alone web images</label> (<label style="margin-left:0;"><input type="checkbox" name="btnstalwebp"> image/webp and image/avif only</label>)</p>
 	<p>Color scheme and font size:</p>
 		<p class="rad"><label><input type="radio" name="radColors" value="light"> Light background</label><br> 
 		<label><input type="radio" name="radColors" value="dark"> Dark background</label></p>
@@ -100,7 +100,9 @@ p[linear] label:first-of-type { margin-left: 24px; }
 <section>
 	<h2>File Name Options</h2>
 	<p>Add to file name: </p>
-		<p class="chk"><label><input type="checkbox" name="namedate" value="date">Download date</label><br>
+		<p class="chk"><label><input type="checkbox" name="nameorigext" value="date">Original extension (e.g., _png)</label><br>
+		<label><input type="checkbox" name="namequality" value="date">JPEG Quality (e.g., _92)</label><br>
+		<label><input type="checkbox" name="namedate" value="date">Download date</label><br>
 		<label><input type="checkbox" name="nametime" value="time">Download time</label><br>
 		<label><input type="checkbox" name="namehost" value="host">(Main site host name)</label><br>
 		<label><input type="checkbox" name="nameimg" value="img">[Image server host name]</label> </p>
