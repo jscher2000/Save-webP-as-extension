@@ -1,6 +1,6 @@
 /* 
   Save webP as PNG or JPEG
-  Copyright 2021. Jefferson "jscher2000" Scher. License: MPL-2.0.
+  Copyright 2022. Jefferson "jscher2000" Scher. License: MPL-2.0.
   version 0.5 - fifth try
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
   version 0.7 - enable subfolder, file name, and auto-close options
@@ -12,6 +12,7 @@
   version 0.9.4 - info and button font-size adjustment, bug fixes
   version 1.0 - Save as IE 11 button
   version 1.1 - File naming fixes (make original extension and JPEG quality optional, fix missing file name bug)
+  version 1.2 - Save as IE 11 available as a menu item action; bug fix for stand-alone images
 */
 
 /**** Create and populate data structure ****/
@@ -350,6 +351,16 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 				code: `alert("Apologies, but it didn't work. Firefox says: '${err}'");`
 			})
 		});
+	} else if (axn == 'requestAsIE'){ // Trigger re-request
+		browser.tabs.executeScript({
+			code:  `/* Save webP as... v1.2 */
+					var u = new URL('${menuInfo.srcUrl}');
+					var newloc = new URL(u.href);
+					if (newloc.search.length == 0) newloc.search = '?swapjIE11=0';
+					else newloc.search += '&swapjIE11=0';
+					location.href = newloc.href;
+					'WTF'`
+		});
 	} else { // Use the specified format and quality
 		browser.tabs.executeScript({
 			code:  `/* Save webP as... v1.1 */
@@ -415,7 +426,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 	}
 });
 
-function standAloneBar(elSelector){
+function standAloneBar(oTab, elSelector){
 	// button bar for pages with stand-alone images (TODO: limit duplication of axn="showbar")
 	var cssfile = '/light.css';
 	if (oPrefs.btndark == true) cssfile = '/dark.css';
@@ -435,7 +446,7 @@ function standAloneBar(elSelector){
 	btns.push({params: 'options', label: '⚙️', span: null});
 	btns.push({params: 'close', label: 'X', span: null});
 
-	browser.tabs.insertCSS({
+	browser.tabs.insertCSS(oTab.id, {
 			file: cssfile,
 			cssOrigin: "user"
 	}).then(() => {
@@ -443,8 +454,8 @@ function standAloneBar(elSelector){
 			code: fontsizeoverride,
 			cssOrigin: "user"
 		}).then(() => {
-		browser.tabs.executeScript({
-			code:  `/* Save webP as... v1.1 */
+		browser.tabs.executeScript(oTab.id, {
+			code:  `/* Save webP as... v1.2 */
 					// check for "webp only"
 					var webponly = ${oPrefs.btnstalwebp};
 					if (webponly == false || document.contentType.toLowerCase() == 'image/webp' || document.contentType.toLowerCase() == 'image/avif') {
@@ -510,13 +521,9 @@ function standAloneBar(elSelector){
 								if (newloc.search.length == 0) newloc.search = '?swapjIE11=0';
 								else newloc.search += '&swapjIE11=0';
 								location.href = newloc.href;
-							} else if (params[0] == 'rr'){ // [v1.0]
-								var newloc = new URL(u.href);
-								if (newloc.search.length == 0) newloc.search = '?swapjIE11=0';
-								else newloc.search += '&swapjIE11=0';
-								location.href = newloc.href;
-							} else if (params[0] == 'p') convert_standAlone(w, u.hostname, u.pathname, 'image/png', 'png', 1);
-							else if (params[0] == 'j'){
+							} else if (params[0] == 'p'){
+								convert_standAlone(w, u.hostname, u.pathname, 'image/png', 'png', 1);
+							} else if (params[0] == 'j'){
 								convert_standAlone(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
 							} else if (params[0] == 'anigif'){
 								if (u.pathname.slice(-5).toLowerCase() == '.webp'){
@@ -562,6 +569,7 @@ function standAloneBar(elSelector){
 						// Create button bar/info panel and position it
 						var di = document.createElement('div'); // start of "new in 0.9"
 						di.id = 'info_standAlone'; 
+						di.title = 'Prefer no automatic display? Click the Options (gear) button to manage the Auto-open setting.';
 						di.className = 'saveWebPasInfo';
 						var p = document.createElement('p');
 						p.appendChild(document.createTextNode('Location: ' + u.href));
@@ -684,7 +692,7 @@ function handleMessage(request, sender, sendResponse){
 			console.log('An error occurred while saving the image: '+err.message);
 		});
 	} else if ("standalone" in request) {
-		standAloneBar(request.standalone.selText);
+		standAloneBar(sender.tab, request.standalone.selText);
 	} else if ("newtab" in request) {
 		browser.tabs.create({
 			url: request.newtab.url

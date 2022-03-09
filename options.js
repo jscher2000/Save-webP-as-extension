@@ -1,6 +1,6 @@
 /* 
   Save webP as PNG or JPEG
-  Copyright 2021. Jefferson "jscher2000" Scher. License: MPL-2.0.
+  Copyright 2022. Jefferson "jscher2000" Scher. License: MPL-2.0.
   version 0.5 - fifth try
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
   version 0.7 - enable subfolder, file name, and auto-close options
@@ -10,6 +10,7 @@
   version 0.9.4 - info and button font-size adjustment, bug fixes
   version 1.0 - Save as IE 11 button
   version 1.1 - File naming fixes (make original extension and JPEG quality optional, fix missing file name bug)
+  version 1.2 - Save as IE 11 available as a menu item action
 */
 
 /*** Initialize Page ***/
