@@ -13,6 +13,7 @@
   version 1.0 - Save as IE 11 button
   version 1.1 - File naming fixes (make original extension and JPEG quality optional, fix missing file name bug)
   version 1.2 - Save as IE 11 available as a menu item action; bug fix for stand-alone images
+  version 1.3 - Detect stand-alone image file names from title
 */
 
 /**** Create and populate data structure ****/
@@ -130,11 +131,11 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 		if (oPrefs.btnjpg85 == true) btns.push({params: 'j,0.85', label: 'JPG', span: '85%'});
 		if (oPrefs.btnjpg80 == true) btns.push({params: 'j,0.80', label: 'JPG', span: '80%'});
 		if (oPrefs.btnjpg75 == true) btns.push({params: 'j,0.75', label: 'JPG', span: '75%'});
-		if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE11'});
-		if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null});
+		if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE11', title: 'Re-request as legacy browser IE 11'});
+		if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null, title: 'Send URL to ezGIF'});
 		btns.push({params: 'info', label: 'ℹ️', span: null});
-		btns.push({params: 'options', label: '⚙️', span: null});
-		btns.push({params: 'close', label: 'X', span: null});
+		btns.push({params: 'options', label: '⚙️', span: null, title: 'Open Settings'});
+		btns.push({params: 'close', label: 'X', span: null, title: 'Close bar'});
 		
 		browser.tabs.insertCSS({
 				file: cssfile,
@@ -148,7 +149,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 			}).then(() => {
 			browser.tabs.executeScript({
 				frameId: menuInfo.frameId,
-				code:  `/* Save webP as... v1.1 */
+				code:  `/* Save webP as... v1.3 */
 						var autoclose = ${oPrefs.btnautoclose};
 						var expandinfo = ${oPrefs.expandinfo};
 						var nameorigext = ${oPrefs.nameorigext};
@@ -159,7 +160,19 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						var u = new URL('${menuInfo.srcUrl}');
 						function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 							// Create new filename
-							var f = path.slice(path.lastIndexOf('/') + 1);
+							var f, e;
+							if (docct.indexOf('image/') === 0){ // try title for stand-alone image
+								f = document.title.trim();
+								if (f.indexOf('(') > -1){
+									if (document.imageIsResized){ // ignore Scaled (xx%)
+										e = f.lastIndexOf('(', f.length - 6);
+									} else {
+										e = f.lastIndexOf('(');
+									}
+									f = f.slice (0, e).trim();
+								}
+							}
+							if (f.length === 0) f = path.slice(path.lastIndexOf('/') + 1);
 							if (f.length === 0) f = 'swpas_temp';
 							if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
 							if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
@@ -335,6 +348,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 									s.appendChild(document.createTextNode(btns[i].span));
 									b.appendChild(s);
 								}
+								if (btns[i].title) b.setAttribute('title', btns[i].title);
 								d.appendChild(b);
 							}
 						}
@@ -363,7 +377,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 		});
 	} else { // Use the specified format and quality
 		browser.tabs.executeScript({
-			code:  `/* Save webP as... v1.1 */
+			code:  `/* Save webP as... v1.3 */
 					var nameorigext = ${oPrefs.nameorigext};
 					var namequality = ${oPrefs.namequality};
 					// Set up variables from menu click
@@ -371,7 +385,19 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 					var u = new URL('${menuInfo.srcUrl}');
 					function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 						// Create new filename
-						var f = path.slice(path.lastIndexOf('/') + 1);
+						var f, e;
+						if (docct.indexOf('image/') === 0){ // try title
+							f = document.title.trim();
+							if (f.indexOf('(') > -1){
+								if (document.imageIsResized){ // ignore Scaled (xx%)
+									e = f.lastIndexOf('(', f.length - 6);
+								} else {
+									e = f.lastIndexOf('(');
+								}
+								f = f.slice (0, e).trim();
+							}
+						}
+						if (f.length === 0) f = path.slice(path.lastIndexOf('/') + 1);
 						if (f.length === 0) f = 'swpas_temp';
 						if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
 						if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
@@ -441,10 +467,10 @@ function standAloneBar(oTab, elSelector){
 	if (oPrefs.btnjpg85 == true) btns.push({params: 'j,0.85', label: 'JPG', span: '85%'});
 	if (oPrefs.btnjpg80 == true) btns.push({params: 'j,0.80', label: 'JPG', span: '80%'});
 	if (oPrefs.btnjpg75 == true) btns.push({params: 'j,0.75', label: 'JPG', span: '75%'});
-	if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE11'});
-	if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null});
-	btns.push({params: 'options', label: '⚙️', span: null});
-	btns.push({params: 'close', label: 'X', span: null});
+	if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE11', title: 'Re-request as legacy browser IE 11'});
+	if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null, title: 'Send URL to ezGIF'});
+	btns.push({params: 'options', label: '⚙️', span: null, title: 'Open Settings'});
+	btns.push({params: 'close', label: 'X', span: null, title: 'Close bar'});
 
 	browser.tabs.insertCSS(oTab.id, {
 			file: cssfile,
@@ -606,6 +632,7 @@ function standAloneBar(oTab, elSelector){
 								s.appendChild(document.createTextNode(btns[i].span));
 								b.appendChild(s);
 							}
+							if (btns[i].title) b.setAttribute('title', btns[i].title);
 							d.appendChild(b);
 						}
 						document.body.appendChild(d);
