@@ -15,6 +15,7 @@
   version 1.2 - Save as IE 11 available as a menu item action; bug fix for stand-alone images
   version 1.3 - Detect stand-alone image file names from title
   version 1.3.1 - Bug fix for quick save
+  version 1.3.2 - File name detection for automatically displayed bar on stand-alone images
 */
 
 /**** Create and populate data structure ****/
@@ -483,10 +484,11 @@ function standAloneBar(oTab, elSelector){
 			cssOrigin: "user"
 		}).then(() => {
 		browser.tabs.executeScript(oTab.id, {
-			code:  `/* Save webP as... v1.2 */
+			code:  `/* Save webP as... v1.3 */
 					// check for "webp only"
 					var webponly = ${oPrefs.btnstalwebp};
-					if (webponly == false || document.contentType.toLowerCase() == 'image/webp' || document.contentType.toLowerCase() == 'image/avif') {
+					var docct = document.contentType; // v1.3.2
+					if (webponly == false || docct.toLowerCase() == 'image/webp' || docct.toLowerCase() == 'image/avif') {
 						var autoclose = ${oPrefs.btnautoclose};
 						var nameorigext = ${oPrefs.nameorigext};
 						var namequality = ${oPrefs.namequality};
@@ -495,7 +497,19 @@ function standAloneBar(oTab, elSelector){
 						var u = new URL(w.src);
 						function convert_standAlone(el, imghost, path, fmt, ext, qual){
 							// Create new filename
-							var f = path.slice(path.lastIndexOf('/') + 1);
+							var f = '', e;
+							if (docct.indexOf('image/') === 0){ // try title
+								f = document.title.trim();
+								if (f.indexOf('(') > -1){
+									if (document.imageIsResized){ // ignore Scaled (xx%)
+										e = f.lastIndexOf('(', f.length - 6);
+									} else {
+										e = f.lastIndexOf('(');
+									}
+									f = f.slice (0, e).trim();
+								}
+							}
+							if (f.length === 0) f = path.slice(path.lastIndexOf('/') + 1);
 							if (f.length === 0) f = 'swpas_temp';
 							if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
 							if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
