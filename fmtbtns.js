@@ -14,6 +14,7 @@
   version 1.1 - File naming fixes (make original extension and JPEG quality optional, fix missing file name bug)
   version 1.2 - Save as IE 11 available as a menu item action; bug fix for stand-alone images
   version 1.3 - Detect stand-alone image file names from title
+  version 1.3.1 - Bug fix for quick save
 */
 
 /**** Create and populate data structure ****/
@@ -160,7 +161,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						var u = new URL('${menuInfo.srcUrl}');
 						function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 							// Create new filename
-							var f, e;
+							var f = '', e;
 							if (docct.indexOf('image/') === 0){ // try title for stand-alone image
 								f = document.title.trim();
 								if (f.indexOf('(') > -1){
@@ -375,17 +376,18 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 					location.href = newloc.href;
 					'WTF'`
 		});
-	} else { // Use the specified format and quality
+	} else { // Use the specified format and quality (Quick Save)
 		browser.tabs.executeScript({
 			code:  `/* Save webP as... v1.3 */
 					var nameorigext = ${oPrefs.nameorigext};
 					var namequality = ${oPrefs.namequality};
+					var docct = document.contentType; // v1.3.1
 					// Set up variables from menu click
 					var w = browser.menus.getTargetElement(${menuInfo.targetElementId});
 					var u = new URL('${menuInfo.srcUrl}');
 					function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 						// Create new filename
-						var f, e;
+						var f = '', e;
 						if (docct.indexOf('image/') === 0){ // try title
 							f = document.title.trim();
 							if (f.indexOf('(') > -1){
