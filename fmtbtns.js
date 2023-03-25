@@ -1,6 +1,6 @@
 /* 
   Save webP as PNG or JPEG
-  Copyright 2022. Jefferson "jscher2000" Scher. License: MPL-2.0.
+  Copyright 2023. Jefferson "jscher2000" Scher. License: MPL-2.0.
   version 0.5 - fifth try
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
   version 0.7 - enable subfolder, file name, and auto-close options
@@ -16,6 +16,7 @@
   version 1.3 - Detect stand-alone image file names from title
   version 1.3.1 - Bug fix for quick save
   version 1.3.2 - File name detection for automatically displayed bar on stand-alone images
+  version 1.3.3 - Additional error detection for failed saves
 */
 
 /**** Create and populate data structure ****/
@@ -37,7 +38,7 @@ var oPrefs = {
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
 	btnstandalone: true,		// show bar automatically on image pages
-	btnstalwebp: false,			//   above feature is for image/webp and image/avif only
+	btnstalwebp: true,			//   above feature is for image/webp and image/avif only [true as of 1.3.3]
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
@@ -206,10 +207,13 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 										pghost: location.hostname
 									}
 								})
-								.then(() => {
+								.then((resp) => {
+									if (resp.succeeded == false){
+										window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
+									}
 									if (autoclose) convbtn_${menuInfo.targetElementId}(null); // remove the bar
 								})
-								.catch((err) => {console.log('An error occurred while saving the image: '+err.message);});
+								.catch((err) => {window.alert('An error occurred while saving the image: '+err.message);});
 							}, fmt, qual);
 						}
 						function convbtn_${menuInfo.targetElementId}(e){
@@ -432,7 +436,12 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 									pghost: location.hostname
 								}
 							})
-							.catch((err) => {console.log('An error occurred while saving the image: '+err.message);});
+							.then((resp) => {
+								if (resp.succeeded == false){
+									window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
+								}
+							})
+							.catch((err) => {alert('An error occurred while saving the image: '+err.message);});
 						}, fmt, qual);
 					}
 					var fmt = '${axn}'.slice(4); //Past the word save
@@ -541,10 +550,13 @@ function standAloneBar(oTab, elSelector){
 										pghost: location.hostname
 									}
 								})
-								.then(() => {
+								.then((resp) => {
+									if (resp.succeeded == false){
+										window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
+									}
 									if (autoclose) convbtn_standAlone(null); // remove the bar
 								})
-								.catch((err) => {console.log('An error occurred while saving the image: '+err.message);});
+								.catch((err) => {alert('An error occurred while saving the image: '+err.message);});
 							}, fmt, qual);
 						}
 						function convbtn_standAlone(e){
@@ -730,10 +742,21 @@ function handleMessage(request, sender, sendResponse){
 			else opts.incognito = true;
 		}
 		browser.downloads.download(opts).then((msg)=> {
-			// TODO ?
+			console.log('No error starting the save.\nParameters: ' + JSON.stringify(opts));
+			sendResponse({
+				succeeded: true,
+				result: JSON.stringify(msg), 
+				params: JSON.stringify(opts)
+			});
 		}).catch((err) => {
-			console.log('An error occurred while saving the image: '+err.message);
+			console.log('Error starting the save: '+err.message +'\nParameters: ' + JSON.stringify(opts));
+			sendResponse({
+				succeeded: false,
+				result: err.message, 
+				params: JSON.stringify(opts)
+			});
 		});
+		return true;
 	} else if ("standalone" in request) {
 		standAloneBar(sender.tab, request.standalone.selText);
 	} else if ("newtab" in request) {

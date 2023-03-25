@@ -1,6 +1,6 @@
 /* 
   Save webP as PNG or JPEG
-  Copyright 2022. Jefferson "jscher2000" Scher. License: MPL-2.0.
+  Copyright 2023. Jefferson "jscher2000" Scher. License: MPL-2.0.
   version 0.5 - fifth try
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
   version 0.7 - enable subfolder, file name, and auto-close options
@@ -32,7 +32,7 @@ var oSettings = {
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
 	btnstandalone: true,		// show bar automatically on image pages
-	btnstalwebp: false,			//   above feature is for image/webp and image/avif only
+	btnstalwebp: true,			//   above feature is for image/webp and image/avif only [true as of 1.3.3]
 	btndark: false,				// show dark buttons
 	/* Save dialog, path, file name options */
 	saveas: null,				// SaveAs parameter for Download() yes/no/null
