@@ -17,6 +17,7 @@
   version 1.3.1 - Bug fix for quick save
   version 1.3.2 - File name detection for automatically displayed bar on stand-alone images
   version 1.3.3 - Additional error detection for failed saves
+  version 1.3.4 - Cleanse file names of illegal characters
 */
 
 /**** Create and populate data structure ****/
@@ -180,6 +181,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
 							if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
 							else f = f.replace(/\.webp/i, '').replace(/\.png/i, '').replace(/\.jpg/i, '').replace(/\.gif/i, '');
+							f = f.replace(/[/\\?%*:|"<>]/g,'-').replace(/-+/g,'-'); // v1.3.4
 							if (qual != 1 && namequality == true) f += '_' + (100 * parseFloat(qual));
 							f += '.' + ext;
 							// Create canvas
@@ -409,6 +411,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
 						if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
 						else f = f.replace(/\.webp/i, '').replace(/\.png/i, '').replace(/\.jpg/i, '').replace(/\.gif/i, '');
+						f = f.replace(/[/\\?%*:|"<>]/g,'-').replace(/-+/g,'-'); // v1.3.4
 						if (qual != 1 && namequality == true) f += '_' + (100 * parseFloat(qual));
 						f += '.' + ext;
 						// Create canvas
@@ -523,6 +526,7 @@ function standAloneBar(oTab, elSelector){
 							if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
 							if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
 							else f = f.replace(/\.webp/i, '').replace(/\.png/i, '').replace(/\.jpg/i, '').replace(/\.gif/i, '');
+							f = f.replace(/[/\\?%*:|"<>]/g,'-').replace(/-+/g,'-'); // v1.3.4
 							if (qual != 1 && namequality == true) f += '_' + (100 * parseFloat(qual));
 							f += '.' + ext;
 							// Create canvas
