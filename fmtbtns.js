@@ -18,6 +18,7 @@
   version 1.3.2 - File name detection for automatically displayed bar on stand-alone images
   version 1.3.3 - Additional error detection for failed saves
   version 1.3.4 - Cleanse file names of illegal characters
+  version 1.3.5 - Truncate file names longer than 200 characters; Quick Save in frames; do not display error message when user cancels save; style hack for Google Photos
 */
 
 /**** Create and populate data structure ****/
@@ -179,6 +180,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							if (f.length === 0) f = path.slice(path.lastIndexOf('/') + 1);
 							if (f.length === 0) f = 'swpas_temp';
 							if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
+							if (f.length > 200) f = f.slice(0, 200); // v1.3.5 workaround
 							if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
 							else f = f.replace(/\.webp/i, '').replace(/\.png/i, '').replace(/\.jpg/i, '').replace(/\.gif/i, '');
 							f = f.replace(/[/\\?%*:|"<>]/g,'-').replace(/-+/g,'-'); // v1.3.4
@@ -210,7 +212,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 									}
 								})
 								.then((resp) => {
-									if (resp.succeeded == false){
+									if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
 										window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
 									}
 									if (autoclose) convbtn_${menuInfo.targetElementId}(null); // remove the bar
@@ -285,6 +287,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 									tgt.style.top = window.scrollY + (br.top - tgt.offsetHeight) + 'px';
 								} else {
 									tgt.style.top = '0px';
+									if (location.hostname.indexOf('photos.google.com') > -1) tgt.style.top = '80px';
 								}
 								// Make sure the bar is in view
 								if (br.top < 0 || br.top > window.innerHeight) tgt.scrollIntoView();
@@ -292,7 +295,8 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								var par = w.closest('p, div, section, aside, header, main, footer, article, body');
 								par.appendChild(tgt);
 								if (window.getComputedStyle(par,null).getPropertyValue("position") == 'static') par.style.position = 'relative';
-								tgt.style.top = Math.max(br.top - par.getBoundingClientRect().top + par.scrollTop, 0) + 'px';;
+								tgt.style.top = Math.max(br.top - par.getBoundingClientRect().top + par.scrollTop, 0) + 'px';
+								if (location.hostname.indexOf('photos.google.com') > -1) tgt.style.top = '80px';
 								tgt.style.left = window.scrollX + Math.max(br.left - par.getBoundingClientRect().left, 0) + 'px';
 								tgt.style.width = br.width + 'px';
 								// Make sure the bar is in view
@@ -385,6 +389,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 		});
 	} else { // Use the specified format and quality (Quick Save)
 		browser.tabs.executeScript({
+			frameId: menuInfo.frameId,
 			code:  `/* Save webP as... v1.3 */
 					var nameorigext = ${oPrefs.nameorigext};
 					var namequality = ${oPrefs.namequality};
@@ -409,6 +414,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						if (f.length === 0) f = path.slice(path.lastIndexOf('/') + 1);
 						if (f.length === 0) f = 'swpas_temp';
 						if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
+						if (f.length > 200) f = f.slice(0, 200); // v1.3.5 workaround
 						if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
 						else f = f.replace(/\.webp/i, '').replace(/\.png/i, '').replace(/\.jpg/i, '').replace(/\.gif/i, '');
 						f = f.replace(/[/\\?%*:|"<>]/g,'-').replace(/-+/g,'-'); // v1.3.4
@@ -440,7 +446,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								}
 							})
 							.then((resp) => {
-								if (resp.succeeded == false){
+								if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
 									window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
 								}
 							})
@@ -524,6 +530,7 @@ function standAloneBar(oTab, elSelector){
 							if (f.length === 0) f = path.slice(path.lastIndexOf('/') + 1);
 							if (f.length === 0) f = 'swpas_temp';
 							if (f.slice(0,1) == '.') f = 'swpas_temp' + f;
+							if (f.length > 200) f = f.slice(0, 200); // v1.3.5 workaround
 							if (nameorigext == true) f = f.replace(/\.webp/i, '_webp').replace(/\.png/i, '_png').replace(/\.jpg/i, '_jpg').replace(/\.gif/i, '_gif');
 							else f = f.replace(/\.webp/i, '').replace(/\.png/i, '').replace(/\.jpg/i, '').replace(/\.gif/i, '');
 							f = f.replace(/[/\\?%*:|"<>]/g,'-').replace(/-+/g,'-'); // v1.3.4
@@ -555,7 +562,7 @@ function standAloneBar(oTab, elSelector){
 									}
 								})
 								.then((resp) => {
-									if (resp.succeeded == false){
+									if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
 										window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
 									}
 									if (autoclose) convbtn_standAlone(null); // remove the bar
