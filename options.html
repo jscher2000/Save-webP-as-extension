@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Options for Save webP as PNG or JPEG v1.3</title>
+<title>Options for Save webP as PNG or JPEG v1.4</title>
 <style>
 body {margin: 8px 16px; background-color: #dff; font-size: 16px;}
 h1, h2 {position: relative; margin-bottom: 0;}
@@ -27,6 +27,7 @@ p[linear] label:first-of-type { margin-left: 24px; }
 			<option value="savejpg85">Save in JPEG format, 85% quality</option>
 			<option value="savejpg80">Save in JPEG format, 80% quality</option>
 			<option value="savejpg75">Save in JPEG format, 75% quality</option>
+			<option value="copy2clip">Copy to Clipboard in PNG format</option>
 			<option value="requestAsIE">Re-request as IE 11</option>
 		</select></label><br>
 		<label>Shift+click: <select name="menushift">
@@ -37,6 +38,7 @@ p[linear] label:first-of-type { margin-left: 24px; }
 			<option value="savejpg85">Save in JPEG format, 85% quality</option>
 			<option value="savejpg80">Save in JPEG format, 80% quality</option>
 			<option value="savejpg75">Save in JPEG format, 75% quality</option>
+			<option value="copy2clip">Copy to Clipboard in PNG format</option>
 			<option value="requestAsIE">Re-request as IE 11</option>
 		</select></label><br>
 		<label>Ctrl+click*: <select name="menuctrl">
@@ -47,6 +49,7 @@ p[linear] label:first-of-type { margin-left: 24px; }
 			<option value="savejpg85">Save in JPEG format, 85% quality</option>
 			<option value="savejpg80">Save in JPEG format, 80% quality</option>
 			<option value="savejpg75">Save in JPEG format, 75% quality</option>
+			<option value="copy2clip">Copy to Clipboard in PNG format</option>
 			<option value="requestAsIE">Re-request as IE 11</option>
 		</select></label> *<em>on Mac, Command+click</em></p>
 </section>
@@ -59,7 +62,8 @@ p[linear] label:first-of-type { margin-left: 24px; }
 		<label><input type="checkbox" name="btnjpg85" value="jpg85">JPG 85%</label> 
 		<label><input type="checkbox" name="btnjpg80" value="jpg80">JPG 80%</label> 
 		<label><input type="checkbox" name="btnjpg75" value="jpg75">JPG 75%</label><br>
-		<label style="margin-left: 24px;"><input type="checkbox" name="btnsaveasie" value="">Save as IE 11</label>
+		<label style="margin-left: 24px;"><label><input type="checkbox" name="btncopy" value="copy">Copy to Clipboard as PNG</label> 
+		<input type="checkbox" name="btnsaveasie" value="">Save as IE 11</label>
 		<label><input type="checkbox" name="btnanigif" value="">Animated WebP (via ezgif.com)</label></p>
 	<p>Auto-close and Auto-open:</p>
 		<p class="chk"><label><input type="checkbox" name="btnautoclose"> Remove bar after downloading image</label><br>

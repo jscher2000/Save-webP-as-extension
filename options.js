@@ -11,6 +11,7 @@
   version 1.0 - Save as IE 11 button
   version 1.1 - File naming fixes (make original extension and JPEG quality optional, fix missing file name bug)
   version 1.2 - Save as IE 11 available as a menu item action
+  version 1.4 - Copy to clipboard
 */
 
 /*** Initialize Page ***/
@@ -28,6 +29,7 @@ var oSettings = {
 	btnjpg85: true,				// show JPG 85% button
 	btnjpg80: true,				// show JPG 80% button
 	btnjpg75: true,				// show JPG 75% button
+	btncopy: true,				// show Copy to Clipboard button
 	btnsaveasie: true,			// show Save as IE 11 button
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading

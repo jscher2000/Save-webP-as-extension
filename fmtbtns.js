@@ -19,6 +19,7 @@
   version 1.3.3 - Additional error detection for failed saves
   version 1.3.4 - Cleanse file names of illegal characters
   version 1.3.5 - Truncate file names longer than 200 characters; Quick Save in frames; do not display error message when user cancels save; style hack for Google Photos
+  version 1.4 - Copy to clipboard; fix for irrepressible button bar on stand-alone image pages
 */
 
 /**** Create and populate data structure ****/
@@ -36,6 +37,7 @@ var oPrefs = {
 	btnjpg85: true,				// show JPG 85% button
 	btnjpg80: true,				// show JPG 80% button
 	btnjpg75: true,				// show JPG 75% button
+	btncopy: true,				// show Copy to Clipboard button
 	btnsaveasie: true,			// show Save as IE 11 button
 	btnanigif: true,			// show AniGIF button
 	btnautoclose: false,		// remove button bar after downloading
@@ -63,13 +65,13 @@ var oPrefs = {
 // Register content script for automatically displayed button bar
 let cs = null;
 async function doContent(){
-	if (oPrefs.btnstandalone) {
+	if (oPrefs.btnstandalone === true) {
 		cs = await browser.contentScripts.register({
 			matches: ['http://*/*', 'https://*/*'],
 			js: [{file: 'detectstandalone.js'}],
 			runAt: "document_idle"
 		});
-	} else if (cs) {
+	} else if (cs != null) {
 		cs.unregister();
 		cs = null;
 	}
@@ -136,7 +138,8 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 		if (oPrefs.btnjpg85 == true) btns.push({params: 'j,0.85', label: 'JPG', span: '85%'});
 		if (oPrefs.btnjpg80 == true) btns.push({params: 'j,0.80', label: 'JPG', span: '80%'});
 		if (oPrefs.btnjpg75 == true) btns.push({params: 'j,0.75', label: 'JPG', span: '75%'});
-		if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE11', title: 'Re-request as legacy browser IE 11'});
+		if (oPrefs.btncopy == true) btns.push({params: 'cop', label: '📋', span: null, title: 'Copy to Clipboard in PNG format'});
+		if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE', title: 'Re-request as legacy browser IE 11'});
 		if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null, title: 'Send URL to ezGIF'});
 		btns.push({params: 'info', label: 'ℹ️', span: null});
 		btns.push({params: 'options', label: '⚙️', span: null, title: 'Open Settings'});
@@ -201,23 +204,44 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							// Then add the image
 							ctx.drawImage(w, 0, 0);
 							canv.toBlob((blob) => {
-								// Send blob to background script for downloading
-								browser.runtime.sendMessage({
-									"download": {
-										cblob: blob,
-										fname: f, 
-										imghost: imghost,
-										imgpath: path,
-										pghost: location.hostname
-									}
-								})
-								.then((resp) => {
-									if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
-										window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
-									}
-									if (autoclose) convbtn_${menuInfo.targetElementId}(null); // remove the bar
-								})
-								.catch((err) => {window.alert('An error occurred while saving the image: '+err.message);});
+								if (ext != 'copy2clip'){
+									// Send blob to background script for downloading
+									browser.runtime.sendMessage({
+										"download": {
+											cblob: blob,
+											fname: f, 
+											imghost: imghost,
+											imgpath: path,
+											pghost: location.hostname
+										}
+									})
+									.then((resp) => {
+										if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
+											window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
+										}
+										if (autoclose) convbtn_${menuInfo.targetElementId}(null); // remove the bar
+									})
+									.catch((err) => {window.alert('An error occurred while saving the image: '+err.message);});
+								} else {
+									// Send ArrayBuffer of blob to background script for saving to clipboard
+									blob.arrayBuffer().then((arrbuff) => {
+										browser.runtime.sendMessage({
+											"copy2clip": {
+												abuff: arrbuff
+											}
+										}).then((resp) => {
+											var cbtn = document.querySelector('#btns_${menuInfo.targetElementId} button[params="cop"]');
+											if (cbtn){
+												if (resp.succeeded == true) cbtn.classList.add('success');
+												else cbtn.classList.add('failure');
+											}
+											if (resp.succeeded == false){
+												window.alert('An error occurred while writing the image to the clipboard: ' + resp.result);
+											}
+											if (autoclose) convbtn_${menuInfo.targetElementId}(null); // remove the bar
+										}).catch((err) => {window.alert('An error occurred writing to the clipboard: '+err.message);});	
+									});
+								}
 							}, fmt, qual);
 						}
 						function convbtn_${menuInfo.targetElementId}(e){
@@ -240,6 +264,8 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'png', 1);
 							} else if (params[0] == 'j'){
 								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
+							} else if (params[0] == 'cop'){
+								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'copy2clip', 1);
 							} else if (params[0] == 'anigif'){
 								if (u.pathname.slice(-5).toLowerCase() == '.webp'){
 									if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
@@ -435,27 +461,44 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						// Then add the image
 						ctx.drawImage(w, 0, 0);
 						canv.toBlob((blob) => {
-							// Send blob to background script for downloading
-							browser.runtime.sendMessage({
-								"download": {
-									cblob: blob,
-									fname: f, 
-									imghost: imghost,
-									imgpath: path,
-									pghost: location.hostname
-								}
-							})
-							.then((resp) => {
-								if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
-									window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
-								}
-							})
-							.catch((err) => {alert('An error occurred while saving the image: '+err.message);});
+							if (ext != 'copy2clip'){
+								// Send blob to background script for downloading
+								browser.runtime.sendMessage({
+									"download": {
+										cblob: blob,
+										fname: f, 
+										imghost: imghost,
+										imgpath: path,
+										pghost: location.hostname
+									}
+								})
+								.then((resp) => {
+									if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
+										window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
+									}
+								})
+								.catch((err) => {alert('An error occurred while saving the image: '+err.message);});
+							} else {
+								// Send ArrayBuffer of blob to background script for saving to clipboard
+								blob.arrayBuffer().then((arrbuff) => {
+									browser.runtime.sendMessage({
+										"copy2clip": {
+											abuff: arrbuff
+										}
+									}).then((resp) => {
+										if (resp.succeeded == false){
+											window.alert('An error occurred while writing the image to the clipboard: ' + resp.result);
+										}
+									}).catch((err) => {window.alert('An error occurred writing to the clipboard: '+err.message);});	
+								});
+							}
 						}, fmt, qual);
 					}
 					var fmt = '${axn}'.slice(4); //Past the word save
 					if (fmt == 'png'){
 						convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'png', 1);
+					} else if (fmt == '2clip') {
+						convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'copy2clip', 1);
 					} else {
 						if (fmt.slice(0,3) == 'jpg'){
 							var qual = parseFloat(fmt.slice(3)) / 100;
@@ -488,6 +531,7 @@ function standAloneBar(oTab, elSelector){
 	if (oPrefs.btnjpg85 == true) btns.push({params: 'j,0.85', label: 'JPG', span: '85%'});
 	if (oPrefs.btnjpg80 == true) btns.push({params: 'j,0.80', label: 'JPG', span: '80%'});
 	if (oPrefs.btnjpg75 == true) btns.push({params: 'j,0.75', label: 'JPG', span: '75%'});
+	if (oPrefs.btncopy == true) btns.push({params: 'cop', label: '📋', span: null, title: 'Copy to Clipboard in PNG format'});
 	if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE11', title: 'Re-request as legacy browser IE 11'});
 	if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null, title: 'Send URL to ezGIF'});
 	btns.push({params: 'options', label: '⚙️', span: null, title: 'Open Settings'});
@@ -551,23 +595,44 @@ function standAloneBar(oTab, elSelector){
 							// Then add the image
 							ctx.drawImage(w, 0, 0);
 							canv.toBlob((blob) => {
-								// Send blob to background script for downloading
-								browser.runtime.sendMessage({
-									"download": {
-										cblob: blob,
-										fname: f, 
-										imghost: imghost,
-										imgpath: path,
-										pghost: location.hostname
-									}
-								})
-								.then((resp) => {
-									if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
-										window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
-									}
-									if (autoclose) convbtn_standAlone(null); // remove the bar
-								})
-								.catch((err) => {alert('An error occurred while saving the image: '+err.message);});
+								if (ext != 'copy2clip'){
+									// Send blob to background script for downloading
+									browser.runtime.sendMessage({
+										"download": {
+											cblob: blob,
+											fname: f, 
+											imghost: imghost,
+											imgpath: path,
+											pghost: location.hostname
+										}
+									})
+									.then((resp) => {
+										if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
+											window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
+										}
+										if (autoclose) convbtn_standAlone(null); // remove the bar
+									})
+									.catch((err) => {alert('An error occurred while saving the image: '+err.message);});
+								} else {
+									// Send ArrayBuffer of blob to background script for saving to clipboard
+									blob.arrayBuffer().then((arrbuff) => {
+										browser.runtime.sendMessage({
+											"copy2clip": {
+												abuff: arrbuff
+											}
+										}).then((resp) => {
+											var cbtn = document.querySelector('#btns_standAlone button[params="cop"]');
+											if (cbtn){
+												if (resp.succeeded == true) cbtn.classList.add('success');
+												else cbtn.classList.add('failure');
+											}
+											if (resp.succeeded == false){
+												window.alert('An error occurred while writing the image to the clipboard: ' + resp.result);
+											}
+											if (autoclose) convbtn_standAlone(null); // remove the bar
+										}).catch((err) => {window.alert('An error occurred writing to the clipboard: '+err.message);});	
+									});
+								}
 							}, fmt, qual);
 						}
 						function convbtn_standAlone(e){
@@ -590,6 +655,8 @@ function standAloneBar(oTab, elSelector){
 								convert_standAlone(w, u.hostname, u.pathname, 'image/png', 'png', 1);
 							} else if (params[0] == 'j'){
 								convert_standAlone(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
+							} else if (params[0] == 'cop'){
+								convert_standAlone(w, u.hostname, u.pathname, 'image/png', 'copy2clip', 1);
 							} else if (params[0] == 'anigif'){
 								if (u.pathname.slice(-5).toLowerCase() == '.webp'){
 									if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
@@ -753,14 +820,14 @@ function handleMessage(request, sender, sendResponse){
 			else opts.incognito = true;
 		}
 		browser.downloads.download(opts).then((msg)=> {
-			console.log('No error starting the save.\nParameters: ' + JSON.stringify(opts));
+			//console.log('No error starting the save.\nParameters: ' + JSON.stringify(opts));
 			sendResponse({
 				succeeded: true,
 				result: JSON.stringify(msg), 
 				params: JSON.stringify(opts)
 			});
 		}).catch((err) => {
-			console.log('Error starting the save: '+err.message +'\nParameters: ' + JSON.stringify(opts));
+			//console.log('Error starting the save: '+err.message +'\nParameters: ' + JSON.stringify(opts));
 			sendResponse({
 				succeeded: false,
 				result: err.message, 
@@ -769,7 +836,9 @@ function handleMessage(request, sender, sendResponse){
 		});
 		return true;
 	} else if ("standalone" in request) {
-		standAloneBar(sender.tab, request.standalone.selText);
+		if (oPrefs.btnstandalone === true){ // v1.4 because unregistering detectstandalone.js isn't working
+			standAloneBar(sender.tab, request.standalone.selText);
+		}
 	} else if ("newtab" in request) {
 		browser.tabs.create({
 			url: request.newtab.url
@@ -796,6 +865,36 @@ function handleMessage(request, sender, sendResponse){
 		// handle as a session-only preference
 		if (oPrefs.expandinfo) oPrefs.expandinfo = false;
 		else oPrefs.expandinfo = true;
+	} else if ("copy2clip" in request) {
+		// Do we have the clipboardWrite permission?
+		browser.permissions.contains({
+			permissions: [
+				"clipboardWrite"
+			]
+		}).then((result) => {
+			if (result === true){ // write array buffer to clipboard in PNG format
+				browser.clipboard.setImageData(request.copy2clip.abuff, "png").then((msg) => {
+					sendResponse({
+						succeeded: true,
+						result: JSON.stringify(msg), 
+						params: ""
+					});
+				}).catch((err) => {
+					sendResponse({
+						succeeded: false,
+						result: err.message, 
+						params: ""
+					});
+				});
+			} else {
+				sendResponse({
+					succeeded: false,
+					result: "Need the 'Input data to the clipboard' permission. Click the gear/wheel button to open Options, then click over to Permissions to grant this one.", 
+					params: ""
+				});
+			}
+		});
+		return true;
 	}
 }
 browser.runtime.onMessage.addListener(handleMessage);
