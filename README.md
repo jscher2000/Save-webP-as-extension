@@ -5,8 +5,12 @@ URL on AMO: https://addons.mozilla.org/firefox/addon/save-webp-as-png-or-jpeg/
 
 **Screenshots:**
 
-![Image of context menu](screenshots/context-menu_0.5_png_92.jpg)
+![Image of context menu](screenshots/context-menu_1.4.png)
 
-![Image of format buttons](screenshots/format-buttons_1.0.png)
+You can remove unwanted Save/Copy/Re-request buttons on the Options page (click the gear button):
 
-![Image of buttons on stand-alone image](screenshots/stand-alone_1.0.png)
+![Image of format buttons](screenshots/format-buttons_1.4.png)
+
+When an image is displayed stand-alone, the bar and the info panel appear automatically for WebP images:
+
+![Image of buttons on stand-alone image](screenshots/stand-alone_1.4.png)
