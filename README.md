@@ -14,3 +14,7 @@ You can remove unwanted Save/Copy/Re-request buttons on the Options page (click 
 When an image is displayed stand-alone, the bar and the info panel appear automatically for WebP images:
 
 ![Image of buttons on stand-alone image](screenshots/stand-alone_1.4.png)
+
+(Added in v1.5) New workarounds for restricted pages, including sites that "sandbox" their content:
+
+![Host permission error dialog and related options](screenshots/options-4_1.5.png)
