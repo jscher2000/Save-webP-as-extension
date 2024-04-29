@@ -1,6 +1,6 @@
 /* 
   Save webP as PNG or JPEG
-  Copyright 2023. Jefferson "jscher2000" Scher. License: MPL-2.0.
+  Copyright 2024. Jefferson "jscher2000" Scher. License: MPL-2.0.
   version 0.5 - fifth try
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
   version 0.7 - enable subfolder, file name, and auto-close options
@@ -20,6 +20,7 @@
   version 1.3.4 - Cleanse file names of illegal characters
   version 1.3.5 - Truncate file names longer than 200 characters; Quick Save in frames; do not display error message when user cancels save; style hack for Google Photos
   version 1.4 - Copy to clipboard; fix for irrepressible button bar on stand-alone image pages
+  version 1.5 - Permission error handling & workaround for sandbox issue
 */
 
 /**** Create and populate data structure ****/
@@ -59,7 +60,9 @@ var oPrefs = {
 	keepprivate: true,			// Don't add downloads from incognito to history
 	expandinfo: false,			// Show info section on overlay for inline (session only)
 	infofontsize: 16,			// Font-size for info text
-	btnfontsize: 14				// Font-size for button text
+	btnfontsize: 14,			// Font-size for button text
+	noperm: 'popup',			// Options are popup, tab, notify, silent
+	nopermkeepopen: false		// Whether to close the popup or tab automatically
 }
 
 // Register content script for automatically displayed button bar
@@ -399,9 +402,13 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 				});
 			});
 		}).catch((err) => {
-			browser.tabs.executeScript({
-				code: `alert("Apologies, but it didn't work. Firefox says: '${err}'");`
-			})
+			if (err.toString().indexOf('Missing host permission') > 0) {
+				noperm(menuInfo.frameUrl || '', menuInfo.pageUrl || '', menuInfo.srcUrl || '', currTab.incognito);
+			} else {
+				browser.tabs.executeScript({
+					code: `alert("Apologies, but it didn't work. Firefox says: '${err}'");`
+				});
+			}
 		});
 	} else if (axn == 'requestAsIE'){ // Trigger re-request
 		browser.tabs.executeScript({
@@ -509,9 +516,13 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 					}
 					'WTF'`
 		}).catch((err) => {
-			browser.tabs.executeScript({
-				code: `alert("Apologies, but the quick save didn't work. Firefox says: '${err}'");`
-			})
+			if (err.toString().indexOf('Missing host permission') > 0) {
+				noperm(menuInfo.frameUrl || '', menuInfo.pageUrl || '', menuInfo.srcUrl || '', currTab.incognito);
+			} else {
+				browser.tabs.executeScript({
+					code: `alert("Apologies, but the quick save didn't work. Firefox says: '${err}'");`
+				});
+			}
 		});
 	}
 });
@@ -752,9 +763,77 @@ function standAloneBar(oTab, elSelector){
 			});
 		});
 	}).catch((err) => {
-		browser.tabs.executeScript({
-			code: `alert("Apologies, but it didn't work. Firefox says: '${err}'");`
-		})
+		if (err.toString().indexOf('Missing host permission') > 0) {
+			noperm(menuInfo.frameUrl || '', menuInfo.pageUrl || '', menuInfo.srcUrl || '', currTab.incognito);
+		} else {
+			browser.tabs.executeScript({
+				code: `alert("Apologies, but it didn't work. Firefox says: '${err}'");`
+			});
+		}
+	});
+}
+
+/***** Host permission popup *****/
+function noperm(urlFrame, urlPage, urlMediaSrc, isPrivate){
+	var urls = {
+		frameUrl: urlFrame, 
+		pageUrl: urlPage, 
+		srcUrl: urlMediaSrc,
+		keepopen: oPrefs.nopermkeepopen
+	}
+	switch (oPrefs.noperm){
+		case 'popup':
+			browser.windows.create({
+				type: 'popup', 
+				incognito: isPrivate,
+				url: '/save-webp-as-page.html?urls=' + JSON.stringify(urls),
+				height: 350,
+				top: screen.height - 400,
+				width: 600,
+				left: screen.width/2 - 300
+			});
+			break;
+		case 'tab':
+			browser.tabs.create({
+				url: '/save-webp-as-page.html?urls=' + JSON.stringify(urls)
+			});
+			break;
+		case 'notify':
+			browser.permissions.contains({
+				permissions: ["notifications"]
+			}).then((resContains) => {
+				if (resContains === false){ // Show the popup
+					console.log('Host permission error AND notifications permission denied. Showing popup instead.');
+					browser.windows.create({
+						type: 'popup', 
+						incognito: isPrivate,
+						url: '/save-webp-as-page.html?urls=' + JSON.stringify(urls),
+						height: 350,
+						top: screen.height - 400,
+						width: 600,
+						left: screen.width/2 - 300
+					});
+				} else { // We're good to show it
+					notifier('Content Script Blocked!', 'Resticted (Mozilla) site or sandboxed page. For workarounds, choose popup in the add-on options.');
+				}
+			});
+			break;
+		default:
+			console.log('Host permission error. No error handling selected? oPrefs.noperm = ' + oPrefs.noperm);
+	}
+}
+function notifier(txtTitle, txtMsg){
+	browser.notifications.create({
+		type: "basic",
+		title: txtTitle,
+		message: txtMsg,
+		iconUrl: "img/smiley128.png"
+	}).then((nId) => {
+		/* TODO: Later we can use alarms to schedule 
+			browser.notifications.clear(nId) 
+		but not today */
+	}).catch((err) => {
+		console.log('Error creating notification? ' + err);
 	});
 }
 
@@ -820,14 +899,12 @@ function handleMessage(request, sender, sendResponse){
 			else opts.incognito = true;
 		}
 		browser.downloads.download(opts).then((msg)=> {
-			//console.log('No error starting the save.\nParameters: ' + JSON.stringify(opts));
 			sendResponse({
 				succeeded: true,
 				result: JSON.stringify(msg), 
 				params: JSON.stringify(opts)
 			});
 		}).catch((err) => {
-			//console.log('Error starting the save: '+err.message +'\nParameters: ' + JSON.stringify(opts));
 			sendResponse({
 				succeeded: false,
 				result: err.message, 

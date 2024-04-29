@@ -1,6 +1,6 @@
 /* 
   Save webP as PNG or JPEG
-  Copyright 2023. Jefferson "jscher2000" Scher. License: MPL-2.0.
+  Copyright 2024. Jefferson "jscher2000" Scher. License: MPL-2.0.
   version 0.5 - fifth try
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
   version 0.7 - enable subfolder, file name, and auto-close options
@@ -12,6 +12,7 @@
   version 1.1 - File naming fixes (make original extension and JPEG quality optional, fix missing file name bug)
   version 1.2 - Save as IE 11 available as a menu item action
   version 1.4 - Copy to clipboard
+  version 1.5 - Permission error handling & workaround for sandbox issue
 */
 
 /*** Initialize Page ***/
@@ -51,7 +52,9 @@ var oSettings = {
 	keepprivate: true,			// Don't add downloads from incognito to history
 	expandinfo: false,			// Show info section on overlay for inline (session only)
 	infofontsize: 16,			// Font-size for info text
-	btnfontsize: 14				// Font-size for button text
+	btnfontsize: 14,			// Font-size for button text
+	noperm: 'popup',			// Options are popup, tab, notify, silent
+	nopermkeepopen: false		// Whether to close the popup or tab automatically
 }
 
 // Update oSettings from storage
@@ -110,6 +113,23 @@ browser.storage.local.get("prefs").then( (results) => {
 	
 	// Privacy
 	document.forms[0].radPrivate.value = oSettings.keepprivate;
+
+	// Permissions Error Handling
+	document.forms[0].radnoperm.value = oSettings.noperm;
+	// Craft permission note (doesn't try to fix a revoked permission)
+	browser.permissions.contains({
+		permissions: [
+			"notifications"
+		]
+	}).then((result) => {
+		if (result === false){
+			document.querySelector('input[type="radio"][value="notify"]').setAttribute('perm', 'need-notifications');
+			document.getElementById('notifypermnote').textContent = '(Need to grant notifications permission)';
+		} else {
+			document.querySelector('input[type="radio"][value="notify"]').setAttribute('perm', 'okay');
+			document.getElementById('notifypermnote').textContent = '(Permission previously granted)';
+		}
+	});
 }).catch((err) => {
 	console.log('Error retrieving "prefs" from storage: '+err.message);
 });
@@ -158,6 +178,9 @@ function updatePref(evt){
 	// Privacy
 	if (document.forms[0].radPrivate.value == 'false') oSettings.keepprivate = false;
 	else oSettings.keepprivate = true;
+
+	// Permissions Error Handling
+	oSettings.noperm = document.forms[0].radnoperm.value;
 	
 	// Update storage
 	browser.storage.local.set(
@@ -245,6 +268,26 @@ function lightSaveBtn(evt){
 						((evt.target.value != 'omit') && (evt.target.value != oSettings.saveas))) chgd = true;
 					else chgd = false;	
 					break;
+				case 'radnoperm':
+					switch (evt.target.value){
+						case 'popup':
+							if (oSettings.noperm != 'popup') chgd = true;
+							else chgd = false;
+							break;
+						case 'tab':
+							if (oSettings.noperm != 'tab') chgd = true;
+							else chgd = false;
+							break;
+						case 'notify':
+							if (oSettings.noperm != 'notify') chgd = true;
+							else chgd = false;
+							break;
+						case 'silent':
+							if (oSettings.noperm != 'silent') chgd = true;
+							else chgd = false;
+							break;
+					}
+					break;
 			}
 			if (chgd){
 				var rads = frm.querySelectorAll('input[name="' + evt.target.name + '"]');
@@ -288,3 +331,37 @@ function lightSaveBtn(evt){
 // Attach event handler to the Save buttons
 document.forms[0].addEventListener('click', updatePref, false);
 document.forms[0].addEventListener('change', lightSaveBtn, false);
+
+// Optional permission handler
+function optionalPerm(evt){
+	var toCheck = '';
+	switch (evt.target.value){
+		case 'notify':
+			if (evt.target.checked && evt.target.getAttribute('perm') == 'need-notifications'){
+				toCheck = 'notifications';
+			}
+			break;
+		default:
+			// WTF?
+	}
+	if (toCheck == '') return;
+	// Request permission
+	browser.permissions.request({
+		permissions: [
+			toCheck
+		]
+	}).then((result) => {
+		if (result === false){
+			// revert to saved or default preference value
+			if (evt.target.value = 'notify'){
+				window.setTimeout(function(){
+					document.querySelector('input[type="radio"][value="' + oSettings.noperm + '"]').click();
+				}, 100);
+			}
+		} else {
+			evt.target.setAttribute('perm', 'have-notifications');
+			document.getElementById('notifypermnote').textContent = '(Permission previously granted)';
+		}
+	})
+}
+document.querySelector('input[type="radio"][value="notify"]').addEventListener('change', optionalPerm, false);

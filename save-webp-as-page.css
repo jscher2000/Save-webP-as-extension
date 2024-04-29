@@ -1,0 +1,67 @@
+/* 
+  Save webP as PNG or JPEG - Host Permission Error Page
+  Copyright 2024. Jefferson "jscher2000" Scher. License: MPL-2.0.
+  version 1.5 - Initial design of host permission error options
+*/
+
+body {
+	--body-text-color: #000;
+	color: var(--body-text-color);
+	--body-back-color: #aaa;
+	background-color: var(--body-back-color);
+	margin: 0;
+	padding: 0 16px 0;
+	--body-size: 15px;
+	font-size: var(--body-size);
+	overflow-y: auto;
+	font-family: sans-serif;
+	--link-color: #0000EE;
+	--visited-color: #551A8B;
+}
+@media (min-width: 510px){ /* removes background image when window is narrowed to text is zoomed significantly */
+	body {
+		background-image: url("img/smiley128.png");
+		background-origin: border-box;
+		background-repeat: no-repeat;
+		background-position: top 4px right 4px;
+		background-size: 64px; /* width; height is auto */
+	}
+}
+
+a { color: var(--link-color);}
+a:visited { color: var(--visited-color);}
+
+/* Color scheme */
+@media (prefers-color-scheme: light) {
+	body {
+		--body-text-color: #000;
+		--body-back-color: #f8f8f8;
+		--table-head-color: #f4f4f4;
+		--table-back-color: #333;
+	}
+}
+@media (prefers-color-scheme: dark) {
+	body {
+		--body-text-color: #f4f4f4;
+		--body-back-color: #333;
+		--table-head-color: #000;
+		--table-back-color: #e4e4e4;
+		--link-color: #8C8CFF;
+		--visited-color: #FFADFF;
+	}
+}
+#options {
+	-moz-appearance: none;
+	font-size: var(--body-size);
+	padding: 1px 2px 3px 2px !important;
+	border-radius: 4px;
+	color: var(--body-text-color);
+	background-color: rgba(0, 0, 0, 0.05) !important;
+	border-color: transparent !important;
+	min-width: 30px;
+	min-height: 30px;
+	filter: grayscale(1);
+}
+#options:hover, #options:focus {
+	border-color: var(--body-text-color) !important;
+}

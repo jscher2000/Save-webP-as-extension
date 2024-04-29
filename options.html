@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Options for Save webP as PNG or JPEG v1.4</title>
+<title>Options for Save webP as PNG or JPEG v1.5</title>
 <style>
 body {margin: 8px 16px; background-color: #dff; font-size: 16px;}
 h1, h2 {position: relative; margin-bottom: 0;}
@@ -118,6 +118,15 @@ p[linear] label:first-of-type { margin-left: 24px; }
 	<p>Keep saves from private windows private: </p>
 		<p class="rad"><label><input type="radio" name="radPrivate" value="true"> Yes, only show in private window downloads</label><br>
 		<label><input type="radio" name="radPrivate" value="false"> No, show in regular downloads</label></p>
+</section>
+<section>
+	<h2>Error Handling Options</h2>
+	<p>When Firefox won't inject a critical script into a page: </p>
+		<p class="rad"><label><input type="radio" name="radnoperm" value="popup" checked>Open a popup window with options</label><br>
+		<label><input type="radio" name="radnoperm" value="tab">Open a tab with options</label><br>
+		<label><input type="radio" name="radnoperm" value="notify">Notification only</label> <span id="notifypermnote"></span><br>
+		<label><input type="radio" name="radnoperm" value="silent">Fail silently (like version 1.4 and earlier)</label></p>
+	<p class="chk"><label><input type="checkbox" name="nopermkeepopen"> Keep popup/tab open after choosing a link</label></p>
 </section>
 </form>
 <script src="options.js"></script>
