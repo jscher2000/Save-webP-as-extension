@@ -20,7 +20,8 @@
   version 1.3.4 - Cleanse file names of illegal characters
   version 1.3.5 - Truncate file names longer than 200 characters; Quick Save in frames; do not display error message when user cancels save; style hack for Google Photos
   version 1.4 - Copy to clipboard; fix for irrepressible button bar on stand-alone image pages
-  version 1.5 - Permission error handling & workaround for sandbox issue
+  version 1.5.1 - Permission error handling (options popup)
+  version 1.5.2 - Prefer currentSrc when different from src, un-transform enlarged button bar
 */
 
 /**** Create and populate data structure ****/
@@ -160,7 +161,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 			}).then(() => {
 			browser.tabs.executeScript({
 				frameId: menuInfo.frameId,
-				code:  `/* Save webP as... v1.3 */
+				code:  `/* Save webP as... v1.5.2 */
 						var autoclose = ${oPrefs.btnautoclose};
 						var expandinfo = ${oPrefs.expandinfo};
 						var nameorigext = ${oPrefs.nameorigext};
@@ -169,6 +170,12 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						// Set up variables from menu click
 						var w = browser.menus.getTargetElement(${menuInfo.targetElementId});
 						var u = new URL('${menuInfo.srcUrl}');
+						var curs = null;
+						if (w.src != w.currentSrc){
+							u = new URL(w.currentSrc);
+							curs = new Image();
+							curs.src = u.href;
+						}
 						function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 							// Create new filename
 							var f = '', e;
@@ -194,8 +201,13 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							f += '.' + ext;
 							// Create canvas
 							var canv = document.createElement('canvas');
-							canv.width = w.naturalWidth;
-							canv.height = w.naturalHeight;
+							if (curs){
+								canv.width = curs.naturalWidth;
+								canv.height = curs.naturalHeight;
+							} else {
+								canv.width = w.naturalWidth;
+								canv.height = w.naturalHeight;
+							}
 							var ctx = canv.getContext('2d');
 							if (ext == 'jpg'){
 								// Match the background color (fix "white" to avoid transparency)
@@ -205,7 +217,8 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								ctx.fillRect(0, 0, canv.width, canv.height);
 							}
 							// Then add the image
-							ctx.drawImage(w, 0, 0);
+							if (curs) ctx.drawImage(curs, 0, 0);
+							else ctx.drawImage(w, 0, 0);
 							canv.toBlob((blob) => {
 								if (ext != 'copy2clip'){
 									// Send blob to background script for downloading
@@ -330,6 +343,10 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								tgt.style.width = br.width + 'px';
 								// Make sure the bar is in view
 								if (br.top < 0 || br.top > window.innerHeight) tgt.scrollIntoView();
+								// Un-transform if relevant [1.5.2]
+								var tgtrect = tgt.getBoundingClientRect();
+								var tgtwidth = tgtrect.right - tgtrect.left;
+								if (tgtwidth > br.width) tgt.style.transform = 'scale(' + (br.width / tgtwidth) + ') translate(' + ((tgtwidth - br.width) / 2 * -1) + 'px, 0px)';
 							}
 						}
 						// Create button bar/info panel and position it
@@ -423,13 +440,19 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 	} else { // Use the specified format and quality (Quick Save)
 		browser.tabs.executeScript({
 			frameId: menuInfo.frameId,
-			code:  `/* Save webP as... v1.3 */
+			code:  `/* Save webP as... v1.5.2 */
 					var nameorigext = ${oPrefs.nameorigext};
 					var namequality = ${oPrefs.namequality};
 					var docct = document.contentType; // v1.3.1
 					// Set up variables from menu click
 					var w = browser.menus.getTargetElement(${menuInfo.targetElementId});
 					var u = new URL('${menuInfo.srcUrl}');
+					var curs = null;
+					if (w.src != w.currentSrc){
+						u = new URL(w.currentSrc);
+						curs = new Image();
+						curs.src = u.href;
+					}
 					function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 						// Create new filename
 						var f = '', e;
@@ -455,8 +478,13 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						f += '.' + ext;
 						// Create canvas
 						var canv = document.createElement('canvas');
-						canv.width = w.naturalWidth;
-						canv.height = w.naturalHeight;
+						if (curs){
+							canv.width = curs.naturalWidth;
+							canv.height = curs.naturalHeight;
+						} else {
+							canv.width = w.naturalWidth;
+							canv.height = w.naturalHeight;
+						}
 						var ctx = canv.getContext('2d');
 						if (ext == 'jpg'){
 							// Match the background color (fix "white" to avoid transparency)
@@ -466,7 +494,8 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							ctx.fillRect(0, 0, canv.width, canv.height);
 						}
 						// Then add the image
-						ctx.drawImage(w, 0, 0);
+						if (curs) ctx.drawImage(curs, 0, 0);
+						else ctx.drawImage(w, 0, 0);
 						canv.toBlob((blob) => {
 							if (ext != 'copy2clip'){
 								// Send blob to background script for downloading
@@ -787,8 +816,8 @@ function noperm(urlFrame, urlPage, urlMediaSrc, isPrivate){
 				type: 'popup', 
 				incognito: isPrivate,
 				url: '/save-webp-as-page.html?urls=' + JSON.stringify(urls),
-				height: 350,
-				top: screen.height - 400,
+				height: 260,
+				top: screen.height - 300,
 				width: 600,
 				left: screen.width/2 - 300
 			});
@@ -808,8 +837,8 @@ function noperm(urlFrame, urlPage, urlMediaSrc, isPrivate){
 						type: 'popup', 
 						incognito: isPrivate,
 						url: '/save-webp-as-page.html?urls=' + JSON.stringify(urls),
-						height: 350,
-						top: screen.height - 400,
+						height: 260,
+						top: screen.height - 300,
 						width: 600,
 						left: screen.width/2 - 300
 					});
