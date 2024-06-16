@@ -22,6 +22,7 @@
   version 1.4 - Copy to clipboard; fix for irrepressible button bar on stand-alone image pages
   version 1.5.1 - Permission error handling (options popup)
   version 1.5.2 - Prefer currentSrc when different from src, un-transform enlarged button bar
+  version 1.5.3 - Allow sending .gif/.gifv URL to ezgif.com for conversion; improve logic of the IE11 button
 */
 
 /**** Create and populate data structure ****/
@@ -161,7 +162,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 			}).then(() => {
 			browser.tabs.executeScript({
 				frameId: menuInfo.frameId,
-				code:  `/* Save webP as... v1.5.2 */
+				code:  `/* Save webP as... v1.5.3 */
 						var autoclose = ${oPrefs.btnautoclose};
 						var expandinfo = ${oPrefs.expandinfo};
 						var nameorigext = ${oPrefs.nameorigext};
@@ -175,6 +176,11 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							u = new URL(w.currentSrc);
 							curs = new Image();
 							curs.src = u.href;
+						}
+						var ieu = u;
+						if (w.src.toLowerCase().indexOf('.gif') > 0 && u.href.toLowerCase().indexOf('.webp') > 0){
+							// v1.5.3 Try to use original source for IE11 button for animated GIF images
+							ieu = new URL(w.src);
 						}
 						function convert_${menuInfo.targetElementId}(el, imghost, path, fmt, ext, qual){
 							// Create new filename
@@ -272,7 +278,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								params = ['close'];
 							}
 							if (params[0] == 'rr'){ // [v1.0]
-								var newloc = new URL(u.href);
+								var newloc = new URL(ieu.href);
 								if (newloc.search.length == 0) newloc.search = '?swapjIE11=0';
 								else newloc.search += '&swapjIE11=0';
 								location.href = newloc.href;
@@ -291,7 +297,12 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 										});
 									} 
 								} else if (u.pathname.slice(-4).toLowerCase() == '.gif' || u.pathname.slice(-5).toLowerCase() == '.gifv') {
-									alert('Since this is a .gif/.gifv file, try using the Page Info dialog, Media panel, to Save As in GIF format.');
+									if (confirm('URL has a .gif/.gifv extension. Send image URL to ezgif.com for conversion to animated GIF anyway?')){
+										browser.runtime.sendMessage({"newtab": {
+												url: 'https://ezgif.com/webp-to-gif?url='+u
+											}
+										});
+									} 
 								} else {
 									alert('Wrong file type??');
 								}
@@ -706,7 +717,12 @@ function standAloneBar(oTab, elSelector){
 										});
 									} 
 								} else if (u.pathname.slice(-4).toLowerCase() == '.gif' || u.pathname.slice(-5).toLowerCase() == '.gifv') {
-									alert('Since this is a .gif/.gifv file, try using the Page Info dialog, Media panel, to Save As in GIF format.');
+									if (confirm('URL has a .gif/.gifv extension. Send image URL to ezgif.com for conversion to animated GIF anyway?')){
+										browser.runtime.sendMessage({"newtab": {
+												url: 'https://ezgif.com/webp-to-gif?url='+u
+											}
+										});
+									} 
 								} else {
 									alert('Wrong file type??');
 								}

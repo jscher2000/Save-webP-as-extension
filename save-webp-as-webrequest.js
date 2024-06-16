@@ -2,7 +2,7 @@
   Save webP as PNG or JPEG - webRequest Background Script
   Copyright 2024. Jefferson "jscher2000" Scher. License: MPL-2.0.
   version 1.0 - Save as IE 11 button
-  version 1.5 - Strip CSP: sandbox option
+  version 1.5.3 - Updated override for If-None-Match
 */
 
 /**** Redirect and Modify Re-Requests [version 1.0] ****/
@@ -13,11 +13,10 @@ var wrTasks = {
 	modAccept: [],
 	modUA: [],
 	onSendHead: [],
-	onHeadRecd: [],
-	oHRsandbox: []
+	onHeadRecd: []
 };
 
-var OBSH_listener, OSH_listener, OHR_listener, OHRCSP_listener;
+var OBSH_listener, OSH_listener, OHR_listener;
 
 function doRedirect(requestDetails){
 	var url = new URL(requestDetails.url);
@@ -25,7 +24,7 @@ function doRedirect(requestDetails){
 	var srch = url.search;
 	if (srch.length > 0){
 		var searcharray = url.search.slice(1).split('&');
-		if (srch.indexOf('swapjIE11=') > -1){		// To remove re-request as IE11
+		if (srch.indexOf('swapjIE11=') > -1){		// To remove image/webp from Accept header
 			if (searcharray.length == 1){
 				url.search = '';
 			} else {
@@ -40,18 +39,6 @@ function doRedirect(requestDetails){
 			wrTasks.modUA.push(url.href);			// To modify User-Agent header
 			//wrTasks.onSendHead.push(url.href);		// DEBUG (to check modified headers)
 			wrTasks.onHeadRecd.push(url.href);		// To modify Content-Disposition to attachment
-		}
-		if (srch.indexOf('unsandboxcsp=') > -1){	// To modify Content Security Policy by removing sandbox (ver 1.5)
-			if (searcharray.length == 1){
-				url.search = '';
-			} else {
-				viirIndex = searcharray.findIndex((element) => element.indexOf('unsandboxcsp=') > -1);
-				if (viirIndex > -1) {
-					searcharray.splice(viirIndex, 1);
-					url.search = '?' + searcharray.join('&');
-				}
-			}
-			wrTasks.oHRsandbox.push(url.href);
 		}
 
 		// Remove and re-add event listener
@@ -90,17 +77,6 @@ function doRedirect(requestDetails){
 				["blocking", "responseHeaders"]
 			);
 		}
-		browser.webRequest.onHeadersReceived.removeListener(modCSP);
-		if (wrTasks.oHRsandbox.length > 0){
-			OHRCSP_listener = browser.webRequest.onHeadersReceived.addListener(
-				modCSP,
-				{
-					urls: wrTasks.oHRsandbox,
-					types: ["image", "main_frame"]
-				},
-				["blocking", "responseHeaders"]
-			);
-		}
 
 		if (url.href != orighref) {
 			return {
@@ -112,8 +88,7 @@ function doRedirect(requestDetails){
 
 // Set up listener to clean the viir parameter from the url so it doesn't hit the server
 var urlpatterns = [
-	"*://*/*swapjIE11=*",
-	"*://*/*unsandboxcsp=*"
+	"*://*/*swapjIE11=*"
 ];
 
 browser.webRequest.onBeforeRequest.addListener(
@@ -128,7 +103,6 @@ browser.webRequest.onBeforeRequest.addListener(
 /**** Clean Accept Header and Modify User-Agent for Selected Requests [version 1.0] ****/
 
 function modReqHeaders(details){
-	//console.log('Before: ' + JSON.stringify(details.requestHeaders));
 	// Accept header
 	var taskIndex = wrTasks.modAccept.indexOf(details.url);
 	if (taskIndex > -1){
@@ -175,9 +149,18 @@ function modReqHeaders(details){
 	// Remove If-Modified-Since
 	hIndex = details.requestHeaders.findIndex((hdr) => hdr.name.toLowerCase() === 'if-modified-since');
 	if (hIndex > -1) details.requestHeaders.splice(hIndex, 1);
-	// Remove If-None-Match
+	// Override If-None-Match [updated approach in 1.5.3]
 	hIndex = details.requestHeaders.findIndex((hdr) => hdr.name.toLowerCase() === 'if-none-match');
-	if (hIndex > -1) details.requestHeaders.splice(hIndex, 1);
+	if (hIndex > -1){
+		// Set a fake eTag value to prevent 304 response
+		details.requestHeaders[hIndex].value = 'asdf';
+	} else {
+		// Create a new header with a fake eTag value to prevent 304 response
+		details.requestHeaders.push({
+			name: 'If-None-Match',
+			value: 'asdf'
+		});
+	}
 
 	// Dispatch headers, we're done
 	return { requestHeaders: details.requestHeaders };
@@ -189,9 +172,6 @@ function modConDisp(details) {
 	// Content-Disposition header
 	var taskIndex = wrTasks.onHeadRecd.indexOf(details.url);
 	if (taskIndex > -1){
-		// did we get a 304 response? Could redirect but don't want to create an infinite loop...
-		console.log('Response status code for ' + details.url + ' is ' + details.statusCode);
-
 		// find the Content-Disposition header if present
 		let contentDispositionHeader;
 		for (let header of details.responseHeaders) {
@@ -214,39 +194,6 @@ function modConDisp(details) {
 
 		// Purge from event tasks
 		wrTasks.onHeadRecd.splice(taskIndex, 1);
-	}
-	
-	// Dispatch headers, we're done
-	return { responseHeaders: details.responseHeaders };
-}
-
-/**** Clean sandbox from CSP (if applicable) [version 1.5] ****/
-
-function modCSP(details) {
-	// Content-Security-Policy header
-	var taskIndex = wrTasks.oHRsandbox.indexOf(details.url);
-	if (taskIndex > -1){
-		// did we get a 304 response? Could redirect but don't want to create an infinite loop...
-		console.log('Response status code for ' + details.url + ' is ' + details.statusCode);
-
-		// find the Content-Security-Policy header if present
-		let contentDispositionHeader;
-		for (let header of details.responseHeaders) {
-			switch (header.name.toLowerCase()) {
-				case "content-security-policy":
-					cspHeader = header;
-					break;
-			}
-		}
-		if (cspHeader) {
-			// Strip "sandbox;" and "sandbox" and clean up extra spaces
-			cspHeader.value = cspHeader.value.replace(/sandbox;/gi, '').replace(/sandbox/gi, '').replace(/\s+/g, ' ').trim();;
-		} else {
-			// Weird... nothing to do here.
-		}
-
-		// Purge from event tasks
-		wrTasks.oHRsandbox.splice(taskIndex, 1);
 	}
 	
 	// Dispatch headers, we're done
