@@ -23,6 +23,7 @@
   version 1.5.1 - Permission error handling (options popup)
   version 1.5.2 - Prefer currentSrc when different from src, un-transform enlarged button bar
   version 1.5.3 - Allow sending .gif/.gifv URL to ezgif.com for conversion; improve logic of the IE11 button
+  version 1.5.4 - Bug fix for file names in stand-alone window, clarification of folder save options
 */
 
 /**** Create and populate data structure ****/
@@ -162,7 +163,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 			}).then(() => {
 			browser.tabs.executeScript({
 				frameId: menuInfo.frameId,
-				code:  `/* Save webP as... v1.5.3 */
+				code:  `/* Save webP as... v1.5.4 */
 						var autoclose = ${oPrefs.btnautoclose};
 						var expandinfo = ${oPrefs.expandinfo};
 						var nameorigext = ${oPrefs.nameorigext};
@@ -191,7 +192,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 									if (document.imageIsResized){ // ignore Scaled (xx%)
 										e = f.lastIndexOf('(', f.length - 6);
 									} else {
-										e = f.lastIndexOf('(');
+										e = f.lastIndexOf('(', f.length - 7); // Issue #32
 									}
 									f = f.slice (0, e).trim();
 								}
@@ -451,7 +452,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 	} else { // Use the specified format and quality (Quick Save)
 		browser.tabs.executeScript({
 			frameId: menuInfo.frameId,
-			code:  `/* Save webP as... v1.5.2 */
+			code:  `/* Save webP as... v1.5.4 */
 					var nameorigext = ${oPrefs.nameorigext};
 					var namequality = ${oPrefs.namequality};
 					var docct = document.contentType; // v1.3.1
@@ -473,7 +474,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								if (document.imageIsResized){ // ignore Scaled (xx%)
 									e = f.lastIndexOf('(', f.length - 6);
 								} else {
-									e = f.lastIndexOf('(');
+									e = f.lastIndexOf('(', f.length - 7); // Issue #32
 								}
 								f = f.slice (0, e).trim();
 							}
@@ -597,7 +598,7 @@ function standAloneBar(oTab, elSelector){
 			cssOrigin: "user"
 		}).then(() => {
 		browser.tabs.executeScript(oTab.id, {
-			code:  `/* Save webP as... v1.3 */
+			code:  `/* Save webP as... v1.5.4 */
 					// check for "webp only"
 					var webponly = ${oPrefs.btnstalwebp};
 					var docct = document.contentType; // v1.3.2
@@ -617,7 +618,7 @@ function standAloneBar(oTab, elSelector){
 									if (document.imageIsResized){ // ignore Scaled (xx%)
 										e = f.lastIndexOf('(', f.length - 6);
 									} else {
-										e = f.lastIndexOf('(');
+										e = f.lastIndexOf('(', f.length - 7); // Issue #32
 									}
 									f = f.slice (0, e).trim();
 								}
