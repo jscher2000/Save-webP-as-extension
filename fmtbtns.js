@@ -1,6 +1,6 @@
 /* 
   Save webP as PNG or JPEG
-  Copyright 2024. Jefferson "jscher2000" Scher. License: MPL-2.0.
+  Copyright 2026. Jefferson "jscher2000" Scher. License: MPL-2.0.
   version 0.5 - fifth try
   version 0.6 - options for menu item behavior, highlight unsaved options page changes
   version 0.7 - enable subfolder, file name, and auto-close options
@@ -24,6 +24,7 @@
   version 1.5.2 - Prefer currentSrc when different from src, un-transform enlarged button bar
   version 1.5.3 - Allow sending .gif/.gifv URL to ezgif.com for conversion; improve logic of the IE11 button
   version 1.5.4 - Bug fix for file names in stand-alone window, clarification of folder save options
+  version 1.5.5 - Special file name handling for DDG image search results
 */
 
 /**** Create and populate data structure ****/
@@ -163,7 +164,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 			}).then(() => {
 			browser.tabs.executeScript({
 				frameId: menuInfo.frameId,
-				code:  `/* Save webP as... v1.5.4 */
+				code:  `/* Save webP as... v1.5.5 */
 						var autoclose = ${oPrefs.btnautoclose};
 						var expandinfo = ${oPrefs.expandinfo};
 						var nameorigext = ${oPrefs.nameorigext};
@@ -278,26 +279,37 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							} else { // force close
 								params = ['close'];
 							}
+							//Special file name handling for selected sites with embedded URLs 1.5.5
+							var pathnm = u.pathname;
+							if (u.hostname.indexOf('external-content.duckduckgo.com') == 0){
+								var urlPos = decodeURIComponent(u).lastIndexOf('https://');
+								if (urlPos < 1) urlPos = decodeURIComponent(u).lastIndexOf('http://');
+								if (urlPos > -1){
+									var embedURL = new URL(decodeURIComponent(u).slice(urlPos));
+									pathnm = embedURL.pathname;
+									if (pathnm.indexOf('&') > -1) pathnm = pathnm.slice(0, pathnm.indexOf('&'));
+								}
+							}
 							if (params[0] == 'rr'){ // [v1.0]
 								var newloc = new URL(ieu.href);
 								if (newloc.search.length == 0) newloc.search = '?swapjIE11=0';
 								else newloc.search += '&swapjIE11=0';
 								location.href = newloc.href;
 							} else if (params[0] == 'p'){
-								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'png', 1);
+								convert_${menuInfo.targetElementId}(w, u.hostname, pathnm, 'image/png', 'png', 1);
 							} else if (params[0] == 'j'){
-								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
+								convert_${menuInfo.targetElementId}(w, u.hostname, pathnm, 'image/jpeg', 'jpg', parseFloat(params[1]));
 							} else if (params[0] == 'cop'){
-								convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'copy2clip', 1);
+								convert_${menuInfo.targetElementId}(w, u.hostname, pathnm, 'image/png', 'copy2clip', 1);
 							} else if (params[0] == 'anigif'){
-								if (u.pathname.slice(-5).toLowerCase() == '.webp'){
+								if (pathnm.slice(-5).toLowerCase() == '.webp'){
 									if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
 										browser.runtime.sendMessage({"newtab": {
 												url: 'https://ezgif.com/webp-to-gif?url='+u
 											}
 										});
 									} 
-								} else if (u.pathname.slice(-4).toLowerCase() == '.gif' || u.pathname.slice(-5).toLowerCase() == '.gifv') {
+								} else if (pathnm.slice(-4).toLowerCase() == '.gif' || pathnm.slice(-5).toLowerCase() == '.gifv') {
 									if (confirm('URL has a .gif/.gifv extension. Send image URL to ezgif.com for conversion to animated GIF anyway?')){
 										browser.runtime.sendMessage({"newtab": {
 												url: 'https://ezgif.com/webp-to-gif?url='+u
@@ -452,7 +464,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 	} else { // Use the specified format and quality (Quick Save)
 		browser.tabs.executeScript({
 			frameId: menuInfo.frameId,
-			code:  `/* Save webP as... v1.5.4 */
+			code:  `/* Save webP as... v1.5.5 */
 					var nameorigext = ${oPrefs.nameorigext};
 					var namequality = ${oPrefs.namequality};
 					var docct = document.contentType; // v1.3.1
@@ -542,15 +554,26 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							}
 						}, fmt, qual);
 					}
+					//Special file name handling for selected sites with embedded URLs 1.5.5
+					var pathnm = u.pathname;
+					if (u.hostname.indexOf('external-content.duckduckgo.com') == 0){
+						var urlPos = decodeURIComponent(u).lastIndexOf('https://');
+						if (urlPos < 1) urlPos = decodeURIComponent(u).lastIndexOf('http://');
+						if (urlPos > -1){
+							var embedURL = new URL(decodeURIComponent(u).slice(urlPos));
+							pathnm = embedURL.pathname;
+							if (pathnm.indexOf('&') > -1) pathnm = pathnm.slice(0, pathnm.indexOf('&'));
+						}
+					}
 					var fmt = '${axn}'.slice(4); //Past the word save
 					if (fmt == 'png'){
-						convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'png', 1);
+						convert_${menuInfo.targetElementId}(w, u.hostname, pathnm, 'image/png', 'png', 1);
 					} else if (fmt == '2clip') {
-						convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/png', 'copy2clip', 1);
+						convert_${menuInfo.targetElementId}(w, u.hostname, pathnm, 'image/png', 'copy2clip', 1);
 					} else {
 						if (fmt.slice(0,3) == 'jpg'){
 							var qual = parseFloat(fmt.slice(3)) / 100;
-							convert_${menuInfo.targetElementId}(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', qual);
+							convert_${menuInfo.targetElementId}(w, u.hostname, pathnm, 'image/jpeg', 'jpg', qual);
 						} else {
 							alert('Sorry, but I did not recognize the desired format from ' + fmt);
 						}
@@ -598,7 +621,7 @@ function standAloneBar(oTab, elSelector){
 			cssOrigin: "user"
 		}).then(() => {
 		browser.tabs.executeScript(oTab.id, {
-			code:  `/* Save webP as... v1.5.4 */
+			code:  `/* Save webP as... v1.5.5 */
 					// check for "webp only"
 					var webponly = ${oPrefs.btnstalwebp};
 					var docct = document.contentType; // v1.3.2
@@ -698,26 +721,37 @@ function standAloneBar(oTab, elSelector){
 							} else { // force close
 								params = ['close'];
 							}
+							//Special file name handling for selected sites with embedded URLs 1.5.5
+							var pathnm = u.pathname;
+							if (u.hostname.indexOf('external-content.duckduckgo.com') == 0){
+								var urlPos = decodeURIComponent(u).lastIndexOf('https://');
+								if (urlPos < 1) urlPos = decodeURIComponent(u).lastIndexOf('http://');
+								if (urlPos > -1){
+									var embedURL = new URL(decodeURIComponent(u).slice(urlPos));
+									pathnm = embedURL.pathname;
+									if (pathnm.indexOf('&') > -1) pathnm = pathnm.slice(0, pathnm.indexOf('&'));
+								}
+							}
 							if (params[0] == 'rr'){ // [v1.0]
 								var newloc = new URL(u.href);
 								if (newloc.search.length == 0) newloc.search = '?swapjIE11=0';
 								else newloc.search += '&swapjIE11=0';
 								location.href = newloc.href;
 							} else if (params[0] == 'p'){
-								convert_standAlone(w, u.hostname, u.pathname, 'image/png', 'png', 1);
+								convert_standAlone(w, u.hostname, pathnm, 'image/png', 'png', 1);
 							} else if (params[0] == 'j'){
-								convert_standAlone(w, u.hostname, u.pathname, 'image/jpeg', 'jpg', parseFloat(params[1]));
+								convert_standAlone(w, u.hostname, pathnm, 'image/jpeg', 'jpg', parseFloat(params[1]));
 							} else if (params[0] == 'cop'){
-								convert_standAlone(w, u.hostname, u.pathname, 'image/png', 'copy2clip', 1);
+								convert_standAlone(w, u.hostname, pathnm, 'image/png', 'copy2clip', 1);
 							} else if (params[0] == 'anigif'){
-								if (u.pathname.slice(-5).toLowerCase() == '.webp'){
+								if (pathnm.slice(-5).toLowerCase() == '.webp'){
 									if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
 										browser.runtime.sendMessage({"newtab": {
 												url: 'https://ezgif.com/webp-to-gif?url='+u
 											}
 										});
 									} 
-								} else if (u.pathname.slice(-4).toLowerCase() == '.gif' || u.pathname.slice(-5).toLowerCase() == '.gifv') {
+								} else if (pathnm.slice(-4).toLowerCase() == '.gif' || pathnm.slice(-5).toLowerCase() == '.gifv') {
 									if (confirm('URL has a .gif/.gifv extension. Send image URL to ezgif.com for conversion to animated GIF anyway?')){
 										browser.runtime.sendMessage({"newtab": {
 												url: 'https://ezgif.com/webp-to-gif?url='+u
