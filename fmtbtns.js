@@ -106,7 +106,7 @@ if (browser.runtime.PlatformOs == 'win') sep = '\\';
 // Right-click context menu entry
 browser.menus.create({
 	id: 'saveWebPas',
-	title: 'Save webP as...',
+	title: browser.i18n.getMessage('menuTitle'),
 	contexts: ['image']
 });
 // Inject styles and content script for right-clicked image
@@ -145,12 +145,12 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 		if (oPrefs.btnjpg85 == true) btns.push({params: 'j,0.85', label: 'JPG', span: '85%'});
 		if (oPrefs.btnjpg80 == true) btns.push({params: 'j,0.80', label: 'JPG', span: '80%'});
 		if (oPrefs.btnjpg75 == true) btns.push({params: 'j,0.75', label: 'JPG', span: '75%'});
-		if (oPrefs.btncopy == true) btns.push({params: 'cop', label: '📋', span: null, title: 'Copy to Clipboard in PNG format'});
-		if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE', title: 'Re-request as legacy browser IE 11'});
-		if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null, title: 'Send URL to ezGIF'});
+		if (oPrefs.btncopy == true) btns.push({params: 'cop', label: '📋', span: null, title: browser.i18n.getMessage('btn_tooltip_copy')});
+		if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE', title: browser.i18n.getMessage('btn_tooltip_ie')});
+		if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null, title: browser.i18n.getMessage('btn_tooltip_ezgif')});
 		btns.push({params: 'info', label: 'ℹ️', span: null});
-		btns.push({params: 'options', label: '⚙️', span: null, title: 'Open Settings'});
-		btns.push({params: 'close', label: 'X', span: null, title: 'Close bar'});
+		btns.push({params: 'options', label: '⚙️', span: null, title: browser.i18n.getMessage('btn_tooltip_options')});
+		btns.push({params: 'close', label: 'X', span: null, title: browser.i18n.getMessage('btn_tooltip_close')});
 		
 		browser.tabs.insertCSS({
 				file: cssfile,
@@ -241,11 +241,11 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 									})
 									.then((resp) => {
 										if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
-											window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
+											window.alert(browser.i18n.getMessage('error_saving_file', [resp.result, resp.params]));
 										}
 										if (autoclose) convbtn_${menuInfo.targetElementId}(null); // remove the bar
 									})
-									.catch((err) => {window.alert('An error occurred while saving the image: '+err.message);});
+									.catch((err) => {window.alert(browser.i18n.getMessage('error_saving_image', [err.message]));});
 								} else {
 									// Send ArrayBuffer of blob to background script for saving to clipboard
 									blob.arrayBuffer().then((arrbuff) => {
@@ -260,10 +260,10 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 												else cbtn.classList.add('failure');
 											}
 											if (resp.succeeded == false){
-												window.alert('An error occurred while writing the image to the clipboard: ' + resp.result);
+												window.alert(browser.i18n.getMessage('error_clipboard_write', [resp.result]));
 											}
 											if (autoclose) convbtn_${menuInfo.targetElementId}(null); // remove the bar
-										}).catch((err) => {window.alert('An error occurred writing to the clipboard: '+err.message);});	
+										}).catch((err) => {window.alert(browser.i18n.getMessage('error_clipboard_write_general', [err.message]));});	
 									});
 								}
 							}, fmt, qual);
@@ -303,21 +303,21 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								convert_${menuInfo.targetElementId}(w, u.hostname, pathnm, 'image/png', 'copy2clip', 1);
 							} else if (params[0] == 'anigif'){
 								if (pathnm.slice(-5).toLowerCase() == '.webp'){
-									if (confirm('Send image URL to ezgif.com for conversion to animated GIF?')){
+									if (confirm(browser.i18n.getMessage('confirm_ezgif_webp'))){
 										browser.runtime.sendMessage({"newtab": {
 												url: 'https://ezgif.com/webp-to-gif?url='+u
 											}
 										});
 									} 
 								} else if (pathnm.slice(-4).toLowerCase() == '.gif' || pathnm.slice(-5).toLowerCase() == '.gifv') {
-									if (confirm('URL has a .gif/.gifv extension. Send image URL to ezgif.com for conversion to animated GIF anyway?')){
+									if (confirm(browser.i18n.getMessage('confirm_ezgif_gif'))){
 										browser.runtime.sendMessage({"newtab": {
 												url: 'https://ezgif.com/webp-to-gif?url='+u
 											}
 										});
 									} 
 								} else {
-									alert('Wrong file type??');
+									alert(browser.i18n.getMessage('error_wrong_file_type'));
 								}
 							} else if (params[0] == 'info'){
 								var infodiv = document.getElementById('info_${menuInfo.targetElementId}');
@@ -326,7 +326,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 									else infodiv.style.display = '';
 									browser.runtime.sendMessage({"toggleinfo": infodiv.style.display});
 								} else {
-									alert('Hmm, sorry, problem.');
+									alert(browser.i18n.getMessage('error_general_failed', 'Problem'));
 								}
 							} else if (params[0] == 'options'){
 								browser.runtime.sendMessage({"options": "show"});
@@ -378,31 +378,31 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						di.id = 'info_${menuInfo.targetElementId}'; 
 						di.className = 'saveWebPasInfo';
 						var p = document.createElement('p');
-						p.appendChild(document.createTextNode('Location: ' + u.href));
+						p.appendChild(document.createTextNode(browser.i18n.getMessage('info_location') + u.href));
 						di.appendChild(p);
 						p = document.createElement('p');
 						if (docct.indexOf('image/') === 0){ // stand-alone
-							p.appendChild(document.createTextNode('Type: ' + document.contentType.slice(document.contentType.indexOf('/')+1).toUpperCase() + ' (document.contentType=' + document.contentType + ')'));
+							p.appendChild(document.createTextNode(browser.i18n.getMessage('info_type') + document.contentType.slice(document.contentType.indexOf('/')+1).toUpperCase() + ' (document.contentType=' + document.contentType + ')'));
 						} else { //inline
-							p.appendChild(document.createTextNode('Type: (unknown)'));
+							p.appendChild(document.createTextNode(browser.i18n.getMessage('info_type_unknown')));
 							if (!expandinfo) di.style.display = 'none';
 						}
 						di.appendChild(p);
-						var infotext = 'Dimensions: ' + w.naturalWidth + 'px × ' + w.naturalHeight + 'px';
+						var infotext = browser.i18n.getMessage('info_dimensions') + w.naturalWidth + 'px × ' + w.naturalHeight + 'px';
 						if (docct.indexOf('image/') === -1){
 							if (w.width != w.naturalWidth || w.height != w.naturalHeight){
-								infotext += ' (Scaled to: ' + w.width + 'px × ' + w.height + 'px)';
+								infotext += browser.i18n.getMessage('info_scaled', [w.width + 'px × ' + w.height + 'px']);
 							}
 						}
 						p = document.createElement('p');
 						p.appendChild(document.createTextNode(infotext));
 						di.appendChild(p);
-						var sz = '(Not accessible)';
+						var sz = browser.i18n.getMessage('info_not_accessible');
 						if (window.performance){
 							var imgp = performance.getEntriesByName(u.href);
 							if (imgp && imgp.length > 0 && imgp[0].decodedBodySize > 0){
 								sz = (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + ')';
-								if (imgp[0].transferSize > 0) sz += ' (transferred ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + ') in ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds)';
+								if (imgp[0].transferSize > 0) sz += browser.i18n.getMessage('info_transferred', [ (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + ')', (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) ]);
 							}
 						}
 						p = document.createElement('p');
@@ -411,7 +411,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 						if (docct.indexOf('image/') === -1){
 							if (w.getAttribute('alt')){
 								p = document.createElement('p');
-								p.appendChild(document.createTextNode('Alt text: ' + w.getAttribute('alt')));
+								p.appendChild(document.createTextNode(browser.i18n.getMessage('info_alt_text') + w.getAttribute('alt')));
 								di.appendChild(p);
 							}
 						} // end of "new in 0.9"
@@ -447,7 +447,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 				noperm(menuInfo.frameUrl || '', menuInfo.pageUrl || '', menuInfo.srcUrl || '', currTab.incognito);
 			} else {
 				browser.tabs.executeScript({
-					code: `alert("Apologies, but it didn't work. Firefox says: '${err}'");`
+					code: `alert(browser.i18n.getMessage('error_general_failed', "${err.message || err}"));`
 				});
 			}
 		});
@@ -534,10 +534,10 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 								})
 								.then((resp) => {
 									if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
-										window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
+										window.alert(browser.i18n.getMessage('error_saving_file', [resp.result, resp.params]));
 									}
 								})
-								.catch((err) => {alert('An error occurred while saving the image: '+err.message);});
+								.catch((err) => {alert(browser.i18n.getMessage('error_saving_image', [err.message]));});
 							} else {
 								// Send ArrayBuffer of blob to background script for saving to clipboard
 								blob.arrayBuffer().then((arrbuff) => {
@@ -547,9 +547,9 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 										}
 									}).then((resp) => {
 										if (resp.succeeded == false){
-											window.alert('An error occurred while writing the image to the clipboard: ' + resp.result);
+											window.alert(browser.i18n.getMessage('error_clipboard_write', [resp.result]));
 										}
-									}).catch((err) => {window.alert('An error occurred writing to the clipboard: '+err.message);});	
+									}).catch((err) => {window.alert(browser.i18n.getMessage('error_clipboard_write_general', [err.message]));});	
 								});
 							}
 						}, fmt, qual);
@@ -575,7 +575,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 							var qual = parseFloat(fmt.slice(3)) / 100;
 							convert_${menuInfo.targetElementId}(w, u.hostname, pathnm, 'image/jpeg', 'jpg', qual);
 						} else {
-							alert('Sorry, but I did not recognize the desired format from ' + fmt);
+							alert(browser.i18n.getMessage('error_format_not_recognized', [fmt]));
 						}
 					}
 					'WTF'`
@@ -584,7 +584,7 @@ browser.menus.onClicked.addListener((menuInfo, currTab) => {
 				noperm(menuInfo.frameUrl || '', menuInfo.pageUrl || '', menuInfo.srcUrl || '', currTab.incognito);
 			} else {
 				browser.tabs.executeScript({
-					code: `alert("Apologies, but the quick save didn't work. Firefox says: '${err}'");`
+					code: `alert(browser.i18n.getMessage('error_quick_save_failed', "${err.message || err}"));`
 				});
 			}
 		});
@@ -606,11 +606,11 @@ function standAloneBar(oTab, elSelector){
 	if (oPrefs.btnjpg85 == true) btns.push({params: 'j,0.85', label: 'JPG', span: '85%'});
 	if (oPrefs.btnjpg80 == true) btns.push({params: 'j,0.80', label: 'JPG', span: '80%'});
 	if (oPrefs.btnjpg75 == true) btns.push({params: 'j,0.75', label: 'JPG', span: '75%'});
-	if (oPrefs.btncopy == true) btns.push({params: 'cop', label: '📋', span: null, title: 'Copy to Clipboard in PNG format'});
-	if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE11', title: 'Re-request as legacy browser IE 11'});
-	if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null, title: 'Send URL to ezGIF'});
-	btns.push({params: 'options', label: '⚙️', span: null, title: 'Open Settings'});
-	btns.push({params: 'close', label: 'X', span: null, title: 'Close bar'});
+	if (oPrefs.btncopy == true) btns.push({params: 'cop', label: '📋', span: null, title: browser.i18n.getMessage('btn_tooltip_copy')});
+	if (oPrefs.btnsaveasie == true) btns.push({params: 'rr', label: '💾', span: 'IE11', title: browser.i18n.getMessage('btn_tooltip_ie')});
+	if (oPrefs.btnanigif == true) btns.push({params: 'anigif', label: 'GIF(V)', span: null, title: browser.i18n.getMessage('btn_tooltip_ezgif')});
+	btns.push({params: 'options', label: '⚙️', span: null, title: browser.i18n.getMessage('btn_tooltip_options')});
+	btns.push({params: 'close', label: 'X', span: null, title: browser.i18n.getMessage('btn_tooltip_close')});
 
 	browser.tabs.insertCSS(oTab.id, {
 			file: cssfile,
@@ -683,11 +683,11 @@ function standAloneBar(oTab, elSelector){
 									})
 									.then((resp) => {
 										if (resp.succeeded == false && resp.result != 'Download canceled by the user'){
-											window.alert('An error occurred while saving the image file. Error message: ' + resp.result + '. Parameters: ' + resp.params);
+											window.alert(browser.i18n.getMessage('error_saving_file', [resp.result, resp.params]));
 										}
 										if (autoclose) convbtn_standAlone(null); // remove the bar
 									})
-									.catch((err) => {alert('An error occurred while saving the image: '+err.message);});
+									.catch((err) => {alert(browser.i18n.getMessage('error_saving_image', [err.message]));});
 								} else {
 									// Send ArrayBuffer of blob to background script for saving to clipboard
 									blob.arrayBuffer().then((arrbuff) => {
@@ -702,10 +702,10 @@ function standAloneBar(oTab, elSelector){
 												else cbtn.classList.add('failure');
 											}
 											if (resp.succeeded == false){
-												window.alert('An error occurred while writing the image to the clipboard: ' + resp.result);
+												window.alert(browser.i18n.getMessage('error_clipboard_write', [resp.result]));
 											}
 											if (autoclose) convbtn_standAlone(null); // remove the bar
-										}).catch((err) => {window.alert('An error occurred writing to the clipboard: '+err.message);});	
+										}).catch((err) => {window.alert(browser.i18n.getMessage('error_clipboard_write_general', [err.message]));});	
 									});
 								}
 							}, fmt, qual);
@@ -792,24 +792,24 @@ function standAloneBar(oTab, elSelector){
 						// Create button bar/info panel and position it
 						var di = document.createElement('div'); // start of "new in 0.9"
 						di.id = 'info_standAlone'; 
-						di.title = 'Prefer no automatic display? Click the Options (gear) button to manage the Auto-open setting.';
+						di.title = browser.i18n.getMessage('info_auto_display_tip');
 						di.className = 'saveWebPasInfo';
 						var p = document.createElement('p');
-						p.appendChild(document.createTextNode('Location: ' + u.href));
+						p.appendChild(document.createTextNode(browser.i18n.getMessage('info_location') + u.href));
 						di.appendChild(p);
 						p = document.createElement('p');
-						p.appendChild(document.createTextNode('Type: ' + document.contentType.slice(document.contentType.indexOf('/')+1).toUpperCase() + ' (document.contentType=' + document.contentType + ')'));
+						p.appendChild(document.createTextNode(browser.i18n.getMessage('info_type') + document.contentType.slice(document.contentType.indexOf('/')+1).toUpperCase() + ' (document.contentType=' + document.contentType + ')'));
 						di.appendChild(p);
-						var infotext = 'Dimensions: ' + w.naturalWidth + 'px × ' + w.naturalHeight + 'px';
+						var infotext = browser.i18n.getMessage('info_dimensions') + w.naturalWidth + 'px × ' + w.naturalHeight + 'px';
 						p = document.createElement('p');
 						p.appendChild(document.createTextNode(infotext));
 						di.appendChild(p);
-						var sz = '(Not accessible)';
+						var sz = browser.i18n.getMessage('info_not_accessible');
 						if (window.performance){
 							var imgp = performance.getEntriesByName(u.href);
 							if (imgp && imgp.length > 0 && imgp[0].decodedBodySize > 0){
 								sz = (+(Math.round(imgp[0].decodedBodySize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].decodedBodySize + ')';
-								if (imgp[0].transferSize > 0) sz += ' (transferred ' + (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + ') in ' +  (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) + ' seconds)';
+								if (imgp[0].transferSize > 0) sz += browser.i18n.getMessage('info_transferred', [ (+(Math.round(imgp[0].transferSize/1024 + 'e+2')  + 'e-2')) + ' KB (' + imgp[0].transferSize + ')', (+(Math.round(imgp[0].duration/1000 + 'e+2')  + 'e-2')) ]);
 							}
 						}
 						p = document.createElement('p');
@@ -847,7 +847,7 @@ function standAloneBar(oTab, elSelector){
 			noperm(menuInfo.frameUrl || '', menuInfo.pageUrl || '', menuInfo.srcUrl || '', currTab.incognito);
 		} else {
 			browser.tabs.executeScript({
-				code: `alert("Apologies, but it didn't work. Firefox says: '${err}'");`
+				code: `alert(browser.i18n.getMessage('error_general_failed', "${err.message || err}"));`
 			});
 		}
 	});
@@ -894,12 +894,12 @@ function noperm(urlFrame, urlPage, urlMediaSrc, isPrivate){
 						left: screen.width/2 - 300
 					});
 				} else { // We're good to show it
-					notifier('Content Script Blocked!', 'Resticted (Mozilla) site or sandboxed page. For workarounds, choose popup in the add-on options.');
+					notifier(browser.i18n.getMessage('blocked_title'), browser.i18n.getMessage('blocked_message'));
 				}
 			});
 			break;
 		default:
-			console.log('Host permission error. No error handling selected? oPrefs.noperm = ' + oPrefs.noperm);
+			console.log(browser.i18n.getMessage('error_host_permission', [oPrefs.noperm]));
 	}
 }
 function notifier(txtTitle, txtMsg){
@@ -1046,7 +1046,7 @@ function handleMessage(request, sender, sendResponse){
 			} else {
 				sendResponse({
 					succeeded: false,
-					result: "Need the 'Input data to the clipboard' permission. Click the gear/wheel button to open Options, then click over to Permissions to grant this one.", 
+					result: browser.i18n.getMessage('error_clipboard_permission'), 
 					params: ""
 				});
 			}

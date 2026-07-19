@@ -4,6 +4,34 @@
   version 1.5 - Initial design of host permission error options
 */
 
+function localizeHtmlPage() {
+	var objects = document.querySelectorAll('[data-i18n]');
+	for (var i = 0; i < objects.length; i++) {
+		var obj = objects[i];
+		var valStr = obj.getAttribute('data-i18n');
+		var message = browser.i18n.getMessage(valStr);
+		if (message) {
+			obj.textContent = message;
+		}
+	}
+	var title = document.querySelector('title');
+	if (title && title.getAttribute('data-i18n')) {
+		var titleMsg = browser.i18n.getMessage(title.getAttribute('data-i18n'));
+		if (titleMsg) document.title = titleMsg;
+	}
+	// handle custom titles
+	var titles = document.querySelectorAll('[data-i18n-title]');
+	for (var i = 0; i < titles.length; i++) {
+		var obj = titles[i];
+		var valStr = obj.getAttribute('data-i18n-title');
+		var message = browser.i18n.getMessage(valStr);
+		if (message) {
+			obj.setAttribute('title', message);
+		}
+	}
+}
+localizeHtmlPage();
+
 // Read data passed in the URL
 var params = JSON.parse(decodeURI(document.location.search.substring(6)));
 var frameUrl = params.frameUrl; // TODO are there any options we can automate for this scenario??
@@ -77,7 +105,10 @@ if (frameUrl !== '' && frameUrl !== pageUrl) {	// Framed page scenario
 	// set up page link URLs
 	if (pageUrl != ''){
 		urlWkg = new URL(pageUrl);
-		if (urlWkg.hostname !== '') document.getElementById('pagehostname').textContent = ' on ' + urlWkg.hostname;
+		if (urlWkg.hostname !== '') {
+			document.getElementById('permissionMsg').textContent = browser.i18n.getMessage('permissionDeniedOn', urlWkg.hostname);
+			document.getElementById('pagehostname').textContent = '';
+		}
 		if (urlWkg.protocol == 'http:' || urlWkg.protocol == 'https:'){
 			if (urlWkg.search.length == 0) urlWkg.search = '?unsandboxcsp=';
 			else urlWkg.search += '&unsandboxcsp=';
