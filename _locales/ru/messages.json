@@ -1,0 +1,547 @@
+{
+  "extName": {
+    "message": "Сохранить webP как PNG или JPEG",
+    "description": "Extension Name"
+  },
+  "extDescription": {
+    "message": "Конвертирует изображения webP в форматы PNG или JPEG (с выбором качества) при скачивании. Меню по клику правой кнопкой мыши отображает доступные настройки формата поверх изображения.",
+    "description": "Extension Description"
+  },
+  "optionsTitle": {
+    "message": "Настройки «Сохранить webP как PNG или JPEG»",
+    "description": "Options page title"
+  },
+  "optionsHeader": {
+    "message": "Настройки расширения «Сохранить webP как PNG или JPEG»",
+    "description": "Options page header"
+  },
+  "menuItemOptions": {
+    "message": "Параметры контекстного меню",
+    "description": "Menu Item Options heading"
+  },
+  "saveChanges": {
+    "message": "Сохранить изменения",
+    "description": "Save Changes button"
+  },
+  "actionContextMenuItem": {
+    "message": "Действие при нажатии на пункт меню:",
+    "description": "Action label"
+  },
+  "plainClick": {
+    "message": "Простой клик:",
+    "description": "Plain click label"
+  },
+  "shiftClick": {
+    "message": "Shift + клик:",
+    "description": "Shift click label"
+  },
+  "ctrlClick": {
+    "message": "Ctrl + клик*:",
+    "description": "Ctrl click label"
+  },
+  "macCmdNote": {
+    "message": "*на macOS: Command + клик",
+    "description": "Mac OS modifier note"
+  },
+  "opt_showbar": {
+    "message": "Показать панель кнопок",
+    "description": "Menu option to show button bar"
+  },
+  "opt_savepng": {
+    "message": "Сохранить в формате PNG",
+    "description": "Menu option to save as PNG"
+  },
+  "opt_savejpg100": {
+    "message": "Сохранить в JPEG (качество 100%)",
+    "description": "Menu option to save as JPEG 100%"
+  },
+  "opt_savejpg92": {
+    "message": "Сохранить в JPEG (качество 92%)",
+    "description": "Menu option to save as JPEG 92%"
+  },
+  "opt_savejpg85": {
+    "message": "Сохранить в JPEG (качество 85%)",
+    "description": "Menu option to save as JPEG 85%"
+  },
+  "opt_savejpg80": {
+    "message": "Сохранить в JPEG (качество 80%)",
+    "description": "Menu option to save as JPEG 80%"
+  },
+  "opt_savejpg75": {
+    "message": "Сохранить в JPEG (качество 75%)",
+    "description": "Menu option to save as JPEG 75%"
+  },
+  "opt_copy2clip": {
+    "message": "Скопировать в буфер обмена как PNG",
+    "description": "Menu option to copy to clipboard"
+  },
+  "opt_requestAsIE": {
+    "message": "Запросить повторно как IE 11",
+    "description": "Menu option to re-request as IE11"
+  },
+  "buttonBarOptions": {
+    "message": "Параметры панели кнопок",
+    "description": "Button Bar Options heading"
+  },
+  "downloadButtonsToDisplay": {
+    "message": "Кнопки скачивания для отображения:",
+    "description": "Download buttons display label"
+  },
+  "btn_png": {
+    "message": "PNG",
+    "description": "PNG button label"
+  },
+  "btn_jpg100": {
+    "message": "JPG 100%",
+    "description": "JPG 100% button label"
+  },
+  "btn_jpg92": {
+    "message": "JPG 92%",
+    "description": "JPG 92% button label"
+  },
+  "btn_jpg85": {
+    "message": "JPG 85%",
+    "description": "JPG 85% button label"
+  },
+  "btn_jpg80": {
+    "message": "JPG 80%",
+    "description": "JPG 80% button label"
+  },
+  "btn_jpg75": {
+    "message": "JPG 75%",
+    "description": "JPG 75% button label"
+  },
+  "btn_copy": {
+    "message": "Копировать в буфер как PNG",
+    "description": "Copy button label"
+  },
+  "btn_saveasie": {
+    "message": "Сохранить как IE 11",
+    "description": "Save as IE 11 label"
+  },
+  "btn_anigif": {
+    "message": "Анимированный WebP (через ezgif.com)",
+    "description": "Animated WebP label"
+  },
+  "autoCloseAndAutoOpen": {
+    "message": "Автозакрытие и автооткрытие:",
+    "description": "Auto-close and Auto-open label"
+  },
+  "opt_btnautoclose": {
+    "message": " Скрывать панель после скачивания изображения",
+    "description": "Option to remove bar after downloading"
+  },
+  "opt_btnstandalone": {
+    "message": " Автоматически открывать панель на страницах с отдельными изображениями",
+    "description": "Option to open bar on standalone images"
+  },
+  "opt_btnstalwebp": {
+    "message": " только для image/webp и image/avif",
+    "description": "Option to limit standalone bar to webp/avif"
+  },
+  "colorSchemeAndFontSize": {
+    "message": "Цветовая схема и размер шрифта:",
+    "description": "Color scheme and font size label"
+  },
+  "opt_lightcolors": {
+    "message": " Светлая тема",
+    "description": "Option for light background"
+  },
+  "opt_darkcolors": {
+    "message": " Тёмная тема",
+    "description": "Option for dark background"
+  },
+  "opt_btnfontsize": {
+    "message": "Текст на кнопках: ",
+    "description": "Button text font size label"
+  },
+  "opt_infofontsize": {
+    "message": "Информационная панель: ",
+    "description": "Info panel font size label"
+  },
+  "saveDialogAutoSaveOptions": {
+    "message": "Параметры сохранения и автосохранения",
+    "description": "Save dialog and autosave section heading"
+  },
+  "showSaveAsDialogEachTime": {
+    "message": "Показывать диалоговое окно «Сохранить как» каждый раз:",
+    "description": "Show Save As dialog label"
+  },
+  "opt_saveas_yes": {
+    "message": " Да",
+    "description": "Show Save As: Yes"
+  },
+  "opt_saveas_no": {
+    "message": " Нет (Автосохранение)",
+    "description": "Show Save As: No"
+  },
+  "opt_saveas_omit": {
+    "message": " Использовать общие настройки Firefox для загрузок",
+    "description": "Show Save As: Omit"
+  },
+  "savePathOptions": {
+    "message": "Параметры пути сохранения",
+    "description": "Save Path Options heading"
+  },
+  "initialOrAutosaveFolder": {
+    "message": "Папка для автосохранения внутри стандартной папки загрузок Firefox:",
+    "description": "Folder options label"
+  },
+  "opt_folder_default": {
+    "message": " На усмотрение Firefox (Автосохранение => Папка загрузок)",
+    "description": "Folder option default"
+  },
+  "opt_folder_ext": {
+    "message": " Подпапка Save_webP",
+    "description": "Folder option Save_webP sub-folder"
+  },
+  "opt_folder_custom": {
+    "message": " [В будущих версиях] Своё имя папки: ",
+    "description": "Folder option Custom folder name"
+  },
+  "createSubfolders": {
+    "message": "Создавать подпапки:",
+    "description": "Create subfolders label"
+  },
+  "opt_subfolder_none": {
+    "message": "Не нужно",
+    "description": "Subfolder option none"
+  },
+  "opt_subfolder_date": {
+    "message": "Для каждого дня отдельно",
+    "description": "Subfolder option date"
+  },
+  "opt_subfolder_host": {
+    "message": "Для каждого сайта (основное имя хоста)",
+    "description": "Subfolder option main host"
+  },
+  "opt_subfolder_img": {
+    "message": "Для каждого сайта (имя сервера картинок)",
+    "description": "Subfolder option image server"
+  },
+  "fileNameOptions": {
+    "message": "Настройки имени файла",
+    "description": "File Name Options heading"
+  },
+  "addToFileName": {
+    "message": "Добавить к имени файла:",
+    "description": "Add to file name label"
+  },
+  "opt_nameorigext": {
+    "message": "Исходное расширение (например, _png)",
+    "description": "Name option original extension"
+  },
+  "opt_namequality": {
+    "message": "Качество JPEG (например, _92)",
+    "description": "Name option JPEG quality"
+  },
+  "opt_namedate": {
+    "message": "Дата загрузки",
+    "description": "Name option download date"
+  },
+  "opt_nametime": {
+    "message": "Время загрузки",
+    "description": "Name option download time"
+  },
+  "opt_namehost": {
+    "message": "(Имя хоста основного сайта)",
+    "description": "Name option main site host"
+  },
+  "opt_nameimg": {
+    "message": "[Имя сервера картинок]",
+    "description": "Name option image server host"
+  },
+  "downloadHistoryPrivacyOptions": {
+    "message": "Конфиденциальность истории загрузок",
+    "description": "Download History Privacy Options heading"
+  },
+  "keepSavesFromPrivateWindows": {
+    "message": "Сохранять приватность загрузок из приватных окон:",
+    "description": "Keep saves from private windows label"
+  },
+  "opt_private_yes": {
+    "message": " Да, отображать только в загрузках приватного окна",
+    "description": "Private window yes"
+  },
+  "opt_private_no": {
+    "message": " Нет, показывать в общей истории загрузок",
+    "description": "Private window no"
+  },
+  "errorHandlingOptions": {
+    "message": "Параметры обработки ошибок",
+    "description": "Error Handling Options heading"
+  },
+  "whenFirefoxWontInject": {
+    "message": "Если Firefox не может внедрить важный скрипт на страницу:",
+    "description": "Inject script failure option label"
+  },
+  "opt_noperm_popup": {
+    "message": "Открыть всплывающее окно с вариантами решения",
+    "description": "Failure option popup"
+  },
+  "opt_noperm_tab": {
+    "message": "Открыть вкладку с вариантами решения",
+    "description": "Failure option tab"
+  },
+  "opt_noperm_notify": {
+    "message": "Только уведомление",
+    "description": "Failure option notification"
+  },
+  "opt_noperm_silent": {
+    "message": "Молчаливый сбой (как в версиях 1.4 и старше)",
+    "description": "Failure option silent"
+  },
+  "opt_nopermkeepopen": {
+    "message": " Оставлять всплывающее окно/вкладку открытыми после выбора ссылки",
+    "description": "Keep window open option"
+  },
+  "needNotificationsPermission": {
+    "message": "(Требуется предоставить разрешение на показ уведомлений)",
+    "description": "Notification permission need note"
+  },
+  "permissionPreviouslyGranted": {
+    "message": "(Разрешение предоставлено ранее)",
+    "description": "Notification permission granted note"
+  },
+  "errorPageTitle": {
+    "message": "Ошибка разрешений доступа",
+    "description": "Permission error page title"
+  },
+  "permissionDenied": {
+    "message": "Отказано в разрешении на внедрение скрипта",
+    "description": "Permission denied error message"
+  },
+  "permissionDeniedOn": {
+    "message": "Отказано в разрешении на внедрение скрипта на $HOST$",
+    "description": "Permission denied on host error message",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openInNewTab": {
+    "message": "Открыть изображение в новой вкладке",
+    "description": "Open in new tab link"
+  },
+  "openInNewTabNote": {
+    "message": " (возможно, сервер картинок не имеет ограничений?)",
+    "description": "Open in new tab link note"
+  },
+  "sendToEzgifPng": {
+    "message": "Отправить ссылку на изображение в Ezgif для конвертации в PNG",
+    "description": "Ezgif PNG link"
+  },
+  "sendToEzgifJpg": {
+    "message": "Отправить ссылку на изображение в Ezgif для конвертации в JPG",
+    "description": "Ezgif JPG link"
+  },
+  "sandboxedNote": {
+    "message": "Если это страница не от Mozilla, возможно, она изолирована политикой безопасности контента (CSP). (Исправления могут конфликтовать с другими расширениями.)",
+    "description": "Sandbox / CSP explanation note"
+  },
+  "tryAsIe": {
+    "message": "Скачать изображение, маскируясь под Internet Explorer 11",
+    "description": "IE 11 download link"
+  },
+  "sandboxPage": {
+    "message": "Запросить страницу повторно без ограничений CSP: sandbox",
+    "description": "Sandbox page link"
+  },
+  "sandboxImage": {
+    "message": "Запросить изображение повторно без ограничений CSP: sandbox",
+    "description": "Sandbox image link"
+  },
+  "framedTitle": {
+    "message": "Отказано в разрешении на внедрение скрипта!",
+    "description": "Framed error title"
+  },
+  "framedNote": {
+    "message": "Меню было активировано внутри встроенного фрейма (iframe). Попробуйте нажать правой кнопкой мыши > Этот фрейм > Открыть фрейм в новой вкладке и использовать расширение там.",
+    "description": "Framed error description"
+  },
+  "addonOptionsInfo": {
+    "message": "Настройки расширения: выберите между всплывающим окном, вкладкой, простым уведомлением или бесшумным сбоем, а также настройте автозакрытие: ",
+    "description": "Options redirection note"
+  },
+  "openSettingsTooltip": {
+    "message": "Открыть настройки",
+    "description": "Gear button tooltip"
+  },
+  "menuTitle": {
+    "message": "Сохранить webP как...",
+    "description": "Right click menu context option"
+  },
+  "btn_tooltip_copy": {
+    "message": "Скопировать в буфер обмена в формате PNG",
+    "description": "Copy button tooltip"
+  },
+  "btn_tooltip_ie": {
+    "message": "Запросить повторно как старый браузер IE 11",
+    "description": "IE 11 button tooltip"
+  },
+  "btn_tooltip_ezgif": {
+    "message": "Отправить URL в ezGIF",
+    "description": "Ezgif button tooltip"
+  },
+  "btn_tooltip_options": {
+    "message": "Открыть настройки",
+    "description": "Gear button tooltip"
+  },
+  "btn_tooltip_close": {
+    "message": "Закрыть панель",
+    "description": "Close button tooltip"
+  },
+  "info_location": {
+    "message": "Расположение: ",
+    "description": "Location info panel label"
+  },
+  "info_type": {
+    "message": "Тип: ",
+    "description": "Type info panel label"
+  },
+  "info_type_unknown": {
+    "message": "Тип: (неизвестен)",
+    "description": "Unknown type label"
+  },
+  "info_dimensions": {
+    "message": "Размеры: ",
+    "description": "Dimensions info panel label"
+  },
+  "info_scaled": {
+    "message": " (Масштабировано до: $DIMENSIONS$)",
+    "description": "Scaled dimensions label",
+    "placeholders": {
+      "dimensions": {
+        "content": "$1",
+        "example": "800px x 600px"
+      }
+    }
+  },
+  "info_not_accessible": {
+    "message": "(Недоступно)",
+    "description": "Not accessible size string"
+  },
+  "info_transferred": {
+    "message": " (передано $SIZE$ за $TIME$ сек.)",
+    "description": "Transferred size & duration",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "12 KB"
+      },
+      "time": {
+        "content": "$2",
+        "example": "0.15"
+      }
+    }
+  },
+  "info_alt_text": {
+    "message": "Альт-текст: ",
+    "description": "Alt text label"
+  },
+  "info_auto_display_tip": {
+    "message": "Не хотите автопоказ? Нажмите на кнопку «Настройки» (шестерёнка) для управления параметром автооткрытия.",
+    "description": "Automatic display suggestion tooltip"
+  },
+  "error_saving_file": {
+    "message": "Произошла ошибка при сохранении файла изображения. Ошибка: $MSG$. Параметры: $PARAMS$",
+    "description": "File save error",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      },
+      "params": {
+        "content": "$2"
+      }
+    }
+  },
+  "error_saving_image": {
+    "message": "Произошла ошибка при сохранении изображения: $MSG$",
+    "description": "General image saving error",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_clipboard_write": {
+    "message": "Произошла ошибка при записи изображения в буфер обмена: $MSG$",
+    "description": "Clipboard write specific error",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_clipboard_write_general": {
+    "message": "Произошла ошибка при записи в буфер обмена: $MSG$",
+    "description": "Clipboard write general error",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_ezgif_webp": {
+    "message": "Отправить URL изображения на ezgif.com для конвертации в анимированный GIF?",
+    "description": "Confirm WebP animation URL send to Ezgif"
+  },
+  "confirm_ezgif_gif": {
+    "message": "Этот URL уже имеет расширение .gif/.gifv. Всё равно отправить его на ezgif.com для конвертации в анимированный GIF?",
+    "description": "Confirm general GIF URL send to Ezgif"
+  },
+  "error_wrong_file_type": {
+    "message": "Неверный тип файла??",
+    "description": "Wrong file type alert"
+  },
+  "error_format_not_recognized": {
+    "message": "Извините, но желаемый формат не был распознан из: $FORMAT$",
+    "description": "Unrecognized format error",
+    "placeholders": {
+      "format": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_general_failed": {
+    "message": "К сожалению, ничего не вышло. Ответ Firefox: '$MSG$'",
+    "description": "General injection failure",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_quick_save_failed": {
+    "message": "К сожалению, быстрое сохранение завершилось сбоем. Ответ Firefox: '$MSG$'",
+    "description": "Quick save failure",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_clipboard_permission": {
+    "message": "Необходимо разрешение на «Ввод данных в буфер обмена». Нажмите на кнопку-шестерёнку, чтобы открыть Настройки, и перейдите в раздел Разрешений, чтобы предоставить его.",
+    "description": "Clipboard permission warning"
+  },
+  "blocked_title": {
+    "message": "Контент-скрипт заблокирован!",
+    "description": "Content script injection blocked notification title"
+  },
+  "blocked_message": {
+    "message": "Ограниченный сайт (Mozilla) или изолированная страница. Чтобы обойти это ограничение, выберите всплывающее окно в настройках расширения.",
+    "description": "Content script injection blocked notification message"
+  },
+  "error_host_permission": {
+    "message": "Ошибка прав доступа к хосту. Не выбран способ обработки ошибок? oPrefs.noperm = $NOPERM$",
+    "description": "Unhandled permission error in console",
+    "placeholders": {
+      "noperm": {
+        "content": "$1"
+      }
+    }
+  }
+}

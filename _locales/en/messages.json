@@ -1,0 +1,547 @@
+{
+  "extName": {
+    "message": "Save webP as PNG or JPEG",
+    "description": "Extension Name"
+  },
+  "extDescription": {
+    "message": "Convert webP images to PNG or JPEG (with choice of quality) for downloading. Right-click context menu calls up format options overlaid on the image.",
+    "description": "Extension Description"
+  },
+  "optionsTitle": {
+    "message": "Options for Save webP as PNG or JPEG",
+    "description": "Options page title"
+  },
+  "optionsHeader": {
+    "message": "Options for Save webP as PNG or JPEG",
+    "description": "Options page header"
+  },
+  "menuItemOptions": {
+    "message": "Menu Item Options",
+    "description": "Menu Item Options heading"
+  },
+  "saveChanges": {
+    "message": "Save Changes",
+    "description": "Save Changes button"
+  },
+  "actionContextMenuItem": {
+    "message": "Action performed by context menu item:",
+    "description": "Action label"
+  },
+  "plainClick": {
+    "message": "Plain click:",
+    "description": "Plain click label"
+  },
+  "shiftClick": {
+    "message": "Shift+click:",
+    "description": "Shift click label"
+  },
+  "ctrlClick": {
+    "message": "Ctrl+click*:",
+    "description": "Ctrl click label"
+  },
+  "macCmdNote": {
+    "message": "*on Mac, Command+click",
+    "description": "Mac OS modifier note"
+  },
+  "opt_showbar": {
+    "message": "Show button bar",
+    "description": "Menu option to show button bar"
+  },
+  "opt_savepng": {
+    "message": "Save in PNG format",
+    "description": "Menu option to save as PNG"
+  },
+  "opt_savejpg100": {
+    "message": "Save in JPEG format, 100% quality",
+    "description": "Menu option to save as JPEG 100%"
+  },
+  "opt_savejpg92": {
+    "message": "Save in JPEG format, 92% quality",
+    "description": "Menu option to save as JPEG 92%"
+  },
+  "opt_savejpg85": {
+    "message": "Save in JPEG format, 85% quality",
+    "description": "Menu option to save as JPEG 85%"
+  },
+  "opt_savejpg80": {
+    "message": "Save in JPEG format, 80% quality",
+    "description": "Menu option to save as JPEG 80%"
+  },
+  "opt_savejpg75": {
+    "message": "Save in JPEG format, 75% quality",
+    "description": "Menu option to save as JPEG 75%"
+  },
+  "opt_copy2clip": {
+    "message": "Copy to Clipboard in PNG format",
+    "description": "Menu option to copy to clipboard"
+  },
+  "opt_requestAsIE": {
+    "message": "Re-request as IE 11",
+    "description": "Menu option to re-request as IE11"
+  },
+  "buttonBarOptions": {
+    "message": "Button Bar Options",
+    "description": "Button Bar Options heading"
+  },
+  "downloadButtonsToDisplay": {
+    "message": "Download buttons to display:",
+    "description": "Download buttons display label"
+  },
+  "btn_png": {
+    "message": "PNG",
+    "description": "PNG button label"
+  },
+  "btn_jpg100": {
+    "message": "JPG 100%",
+    "description": "JPG 100% button label"
+  },
+  "btn_jpg92": {
+    "message": "JPG 92%",
+    "description": "JPG 92% button label"
+  },
+  "btn_jpg85": {
+    "message": "JPG 85%",
+    "description": "JPG 85% button label"
+  },
+  "btn_jpg80": {
+    "message": "JPG 80%",
+    "description": "JPG 80% button label"
+  },
+  "btn_jpg75": {
+    "message": "JPG 75%",
+    "description": "JPG 75% button label"
+  },
+  "btn_copy": {
+    "message": "Copy to Clipboard as PNG",
+    "description": "Copy button label"
+  },
+  "btn_saveasie": {
+    "message": "Save as IE 11",
+    "description": "Save as IE 11 label"
+  },
+  "btn_anigif": {
+    "message": "Animated WebP (via ezgif.com)",
+    "description": "Animated WebP label"
+  },
+  "autoCloseAndAutoOpen": {
+    "message": "Auto-close and Auto-open:",
+    "description": "Auto-close and Auto-open label"
+  },
+  "opt_btnautoclose": {
+    "message": " Remove bar after downloading image",
+    "description": "Option to remove bar after downloading"
+  },
+  "opt_btnstandalone": {
+    "message": " Open bar automatically on stand-alone web images",
+    "description": "Option to open bar on standalone images"
+  },
+  "opt_btnstalwebp": {
+    "message": " image/webp and image/avif only",
+    "description": "Option to limit standalone bar to webp/avif"
+  },
+  "colorSchemeAndFontSize": {
+    "message": "Color scheme and font size:",
+    "description": "Color scheme and font size label"
+  },
+  "opt_lightcolors": {
+    "message": " Light background",
+    "description": "Option for light background"
+  },
+  "opt_darkcolors": {
+    "message": " Dark background",
+    "description": "Option for dark background"
+  },
+  "opt_btnfontsize": {
+    "message": "Button text: ",
+    "description": "Button text font size label"
+  },
+  "opt_infofontsize": {
+    "message": "Info panel text: ",
+    "description": "Info panel font size label"
+  },
+  "saveDialogAutoSaveOptions": {
+    "message": "Save Dialog / AutoSave Options",
+    "description": "Save dialog and autosave section heading"
+  },
+  "showSaveAsDialogEachTime": {
+    "message": "Show Save As dialog each time:",
+    "description": "Show Save As dialog label"
+  },
+  "opt_saveas_yes": {
+    "message": " Yes",
+    "description": "Show Save As: Yes"
+  },
+  "opt_saveas_no": {
+    "message": " No (Auto-save)",
+    "description": "Show Save As: No"
+  },
+  "opt_saveas_omit": {
+    "message": " Follow my general setting for downloads",
+    "description": "Show Save As: Omit"
+  },
+  "savePathOptions": {
+    "message": "Save Path Options",
+    "description": "Save Path Options heading"
+  },
+  "initialOrAutosaveFolder": {
+    "message": "Initial or Autosave folder under your regular Firefox downloads folder:",
+    "description": "Folder options label"
+  },
+  "opt_folder_default": {
+    "message": " Let Firefox choose (Autosave => Downloads folder)",
+    "description": "Folder option default"
+  },
+  "opt_folder_ext": {
+    "message": " Save_webP sub-folder",
+    "description": "Folder option Save_webP sub-folder"
+  },
+  "opt_folder_custom": {
+    "message": " [Future version] Custom folder name: ",
+    "description": "Folder option Custom folder name"
+  },
+  "createSubfolders": {
+    "message": "Create subfolders:",
+    "description": "Create subfolders label"
+  },
+  "opt_subfolder_none": {
+    "message": "No thanks",
+    "description": "Subfolder option none"
+  },
+  "opt_subfolder_date": {
+    "message": "Each day",
+    "description": "Subfolder option date"
+  },
+  "opt_subfolder_host": {
+    "message": "Each site (main host name)",
+    "description": "Subfolder option main host"
+  },
+  "opt_subfolder_img": {
+    "message": "Each site (image server name)",
+    "description": "Subfolder option image server"
+  },
+  "fileNameOptions": {
+    "message": "File Name Options",
+    "description": "File Name Options heading"
+  },
+  "addToFileName": {
+    "message": "Add to file name:",
+    "description": "Add to file name label"
+  },
+  "opt_nameorigext": {
+    "message": "Original extension (e.g., _png)",
+    "description": "Name option original extension"
+  },
+  "opt_namequality": {
+    "message": "JPEG Quality (e.g., _92)",
+    "description": "Name option JPEG quality"
+  },
+  "opt_namedate": {
+    "message": "Download date",
+    "description": "Name option download date"
+  },
+  "opt_nametime": {
+    "message": "Download time",
+    "description": "Name option download time"
+  },
+  "opt_namehost": {
+    "message": "(Main site host name)",
+    "description": "Name option main site host"
+  },
+  "opt_nameimg": {
+    "message": "[Image server host name]",
+    "description": "Name option image server host"
+  },
+  "downloadHistoryPrivacyOptions": {
+    "message": "Download History Privacy Options",
+    "description": "Download History Privacy Options heading"
+  },
+  "keepSavesFromPrivateWindows": {
+    "message": "Keep saves from private windows private:",
+    "description": "Keep saves from private windows label"
+  },
+  "opt_private_yes": {
+    "message": " Yes, only show in private window downloads",
+    "description": "Private window yes"
+  },
+  "opt_private_no": {
+    "message": " No, show in regular downloads",
+    "description": "Private window no"
+  },
+  "errorHandlingOptions": {
+    "message": "Error Handling Options",
+    "description": "Error Handling Options heading"
+  },
+  "whenFirefoxWontInject": {
+    "message": "When Firefox won't inject a critical script into a page:",
+    "description": "Inject script failure option label"
+  },
+  "opt_noperm_popup": {
+    "message": "Open a popup window with options",
+    "description": "Failure option popup"
+  },
+  "opt_noperm_tab": {
+    "message": "Open a tab with options",
+    "description": "Failure option tab"
+  },
+  "opt_noperm_notify": {
+    "message": "Notification only",
+    "description": "Failure option notification"
+  },
+  "opt_noperm_silent": {
+    "message": "Fail silently (like version 1.4 and earlier)",
+    "description": "Failure option silent"
+  },
+  "opt_nopermkeepopen": {
+    "message": " Keep popup/tab open after choosing a link",
+    "description": "Keep window open option"
+  },
+  "needNotificationsPermission": {
+    "message": "(Need to grant notifications permission)",
+    "description": "Notification permission need note"
+  },
+  "permissionPreviouslyGranted": {
+    "message": "(Permission previously granted)",
+    "description": "Notification permission granted note"
+  },
+  "errorPageTitle": {
+    "message": "Host Permission Error",
+    "description": "Permission error page title"
+  },
+  "permissionDenied": {
+    "message": "Permission to inject script was denied",
+    "description": "Permission denied error message"
+  },
+  "permissionDeniedOn": {
+    "message": "Permission to inject script was denied on $HOST$",
+    "description": "Permission denied on host error message",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openInNewTab": {
+    "message": "Open the image in a new tab",
+    "description": "Open in new tab link"
+  },
+  "openInNewTabNote": {
+    "message": " (maybe image server isn't restricted?)",
+    "description": "Open in new tab link note"
+  },
+  "sendToEzgifPng": {
+    "message": "Send the image URL to Ezgif for PNG conversion",
+    "description": "Ezgif PNG link"
+  },
+  "sendToEzgifJpg": {
+    "message": "Send the image URL to Ezgif for JPG conversion",
+    "description": "Ezgif JPG link"
+  },
+  "sandboxedNote": {
+    "message": "If this is not a Mozilla page, it might be \"sandboxed\" using Content Security Policy. (Fixes subject to potential conflicts with other extensions.)",
+    "description": "Sandbox / CSP explanation note"
+  },
+  "tryAsIe": {
+    "message": "Download the image masquerading as Internet Explorer 11",
+    "description": "IE 11 download link"
+  },
+  "sandboxPage": {
+    "message": "Re-request the page without CSP: sandbox",
+    "description": "Sandbox page link"
+  },
+  "sandboxImage": {
+    "message": "Re-request the image without CSP: sandbox",
+    "description": "Sandbox image link"
+  },
+  "framedTitle": {
+    "message": "Permission to inject script was denied!",
+    "description": "Framed error title"
+  },
+  "framedNote": {
+    "message": "Menu was activated within a framed page. Try right-click > This Frame > Open Frame in New Tab and see whether you can use the add-on there.",
+    "description": "Framed error description"
+  },
+  "addonOptionsInfo": {
+    "message": "Add-on Options: Choose between popup, tab, simple notification, or silent failure, and configure auto-closing: ",
+    "description": "Options redirection note"
+  },
+  "openSettingsTooltip": {
+    "message": "Open Settings",
+    "description": "Gear button tooltip"
+  },
+  "menuTitle": {
+    "message": "Save webP as...",
+    "description": "Right click menu context option"
+  },
+  "btn_tooltip_copy": {
+    "message": "Copy to Clipboard in PNG format",
+    "description": "Copy button tooltip"
+  },
+  "btn_tooltip_ie": {
+    "message": "Re-request as legacy browser IE 11",
+    "description": "IE 11 button tooltip"
+  },
+  "btn_tooltip_ezgif": {
+    "message": "Send URL to ezGIF",
+    "description": "Ezgif button tooltip"
+  },
+  "btn_tooltip_options": {
+    "message": "Open Settings",
+    "description": "Gear button tooltip"
+  },
+  "btn_tooltip_close": {
+    "message": "Close bar",
+    "description": "Close button tooltip"
+  },
+  "info_location": {
+    "message": "Location: ",
+    "description": "Location info panel label"
+  },
+  "info_type": {
+    "message": "Type: ",
+    "description": "Type info panel label"
+  },
+  "info_type_unknown": {
+    "message": "Type: (unknown)",
+    "description": "Unknown type label"
+  },
+  "info_dimensions": {
+    "message": "Dimensions: ",
+    "description": "Dimensions info panel label"
+  },
+  "info_scaled": {
+    "message": " (Scaled to: $DIMENSIONS$)",
+    "description": "Scaled dimensions label",
+    "placeholders": {
+      "dimensions": {
+        "content": "$1",
+        "example": "800px x 600px"
+      }
+    }
+  },
+  "info_not_accessible": {
+    "message": "(Not accessible)",
+    "description": "Not accessible size string"
+  },
+  "info_transferred": {
+    "message": " (transferred $SIZE$ in $TIME$ seconds)",
+    "description": "Transferred size & duration",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "12 KB"
+      },
+      "time": {
+        "content": "$2",
+        "example": "0.15"
+      }
+    }
+  },
+  "info_alt_text": {
+    "message": "Alt text: ",
+    "description": "Alt text label"
+  },
+  "info_auto_display_tip": {
+    "message": "Prefer no automatic display? Click the Options (gear) button to manage the Auto-open setting.",
+    "description": "Automatic display suggestion tooltip"
+  },
+  "error_saving_file": {
+    "message": "An error occurred while saving the image file. Error message: $MSG$. Parameters: $PARAMS$",
+    "description": "File save error",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      },
+      "params": {
+        "content": "$2"
+      }
+    }
+  },
+  "error_saving_image": {
+    "message": "An error occurred while saving the image: $MSG$",
+    "description": "General image saving error",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_clipboard_write": {
+    "message": "An error occurred while writing the image to the clipboard: $MSG$",
+    "description": "Clipboard write specific error",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_clipboard_write_general": {
+    "message": "An error occurred writing to the clipboard: $MSG$",
+    "description": "Clipboard write general error",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_ezgif_webp": {
+    "message": "Send image URL to ezgif.com for conversion to animated GIF?",
+    "description": "Confirm WebP animation URL send to Ezgif"
+  },
+  "confirm_ezgif_gif": {
+    "message": "URL has a .gif/.gifv extension. Send image URL to ezgif.com for conversion to animated GIF anyway?",
+    "description": "Confirm general GIF URL send to Ezgif"
+  },
+  "error_wrong_file_type": {
+    "message": "Wrong file type??",
+    "description": "Wrong file type alert"
+  },
+  "error_format_not_recognized": {
+    "message": "Sorry, but I did not recognize the desired format from $FORMAT$",
+    "description": "Unrecognized format error",
+    "placeholders": {
+      "format": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_general_failed": {
+    "message": "Apologies, but it didn't work. Firefox says: '$MSG$'",
+    "description": "General injection failure",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_quick_save_failed": {
+    "message": "Apologies, but the quick save didn't work. Firefox says: '$MSG$'",
+    "description": "Quick save failure",
+    "placeholders": {
+      "msg": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_clipboard_permission": {
+    "message": "Need the 'Input data to the clipboard' permission. Click the gear/wheel button to open Options, then click over to Permissions to grant this one.",
+    "description": "Clipboard permission warning"
+  },
+  "blocked_title": {
+    "message": "Content Script Blocked!",
+    "description": "Content script injection blocked notification title"
+  },
+  "blocked_message": {
+    "message": "Restricted (Mozilla) site or sandboxed page. For workarounds, choose popup in the add-on options.",
+    "description": "Content script injection blocked notification message"
+  },
+  "error_host_permission": {
+    "message": "Host permission error. No error handling selected? oPrefs.noperm = $NOPERM$",
+    "description": "Unhandled permission error in console",
+    "placeholders": {
+      "noperm": {
+        "content": "$1"
+      }
+    }
+  }
+}

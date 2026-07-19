@@ -3,31 +3,31 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link rel="stylesheet" href="save-webp-as-page.css" type="text/css">
-<title>Host Permission Error 1.5</title>
+<title data-i18n="errorPageTitle">Host Permission Error 1.5</title>
 </head>
 <body>
 <div id="general">
-<p><strong>Permission to inject script was denied<span id="pagehostname"></span>!</strong></p>
+<p><strong><span id="permissionMsg" data-i18n="permissionDenied">Permission to inject script was denied</span><span id="pagehostname"></span>!</strong></p>
 <ul>
-	<li><a href="" id="OpenNewTab" target="_blank">Open the image in a new tab</a> (maybe image server isn't restricted?)</li>
-	<li><form method="post" action="https://ezgif.com/webp-to-png" target="_blank"><a href="" id="EzgifPNG">Send the image URL to Ezgif for PNG conversion</a><input type="hidden" name="new-image-url" value=""></form></li>
-	<li><form method="post" action="https://ezgif.com/webp-to-jpg" target="_blank"><a href="" id="EzgifJPG">Send the image URL to Ezgif for JPG conversion</a><input type="hidden" name="new-image-url" value=""></form></li>
+	<li><a href="" id="OpenNewTab" target="_blank" data-i18n="openInNewTab">Open the image in a new tab</a><span data-i18n="openInNewTabNote"> (maybe image server isn't restricted?)</span></li>
+	<li><form method="post" action="https://ezgif.com/webp-to-png" target="_blank"><a href="" id="EzgifPNG" data-i18n="sendToEzgifPng">Send the image URL to Ezgif for PNG conversion</a><input type="hidden" name="new-image-url" value=""></form></li>
+	<li><form method="post" action="https://ezgif.com/webp-to-jpg" target="_blank"><a href="" id="EzgifJPG" data-i18n="sendToEzgifJpg">Send the image URL to Ezgif for JPG conversion</a><input type="hidden" name="new-image-url" value=""></form></li>
 </ul>
-<p>If this is not a Mozilla page, it might be "sandboxed" using Content Security Policy. (Fixes subject to potential conflicts with other extensions.)</p>
+<p data-i18n="sandboxedNote">If this is not a Mozilla page, it might be "sandboxed" using Content Security Policy. (Fixes subject to potential conflicts with other extensions.)</p>
 <ul>
-	<li><a href="" id="tryAsIE" target="_blank">Download the image masquerading as Internet Explorer 11</a></li>
-	<li><a href="" id="sandboxPage" target="_blank">Re-request the page without CSP: sandbox</a></li>
-	<li><a href="" id="sandboxImage" target="_blank">Re-request the image without CSP: sandbox</a></li>
+	<li><a href="" id="tryAsIE" target="_blank" data-i18n="tryAsIe">Download the image masquerading as Internet Explorer 11</a></li>
+	<li><a href="" id="sandboxPage" target="_blank" data-i18n="sandboxPage">Re-request the page without CSP: sandbox</a></li>
+	<li><a href="" id="sandboxImage" target="_blank" data-i18n="sandboxImage">Re-request the image without CSP: sandbox</a></li>
 </ul>
 </div>
 
 <div id="framed">
-<p><strong>Permission to inject script was denied!</strong> </p>
-<p>Menu was activated within a framed page. Try right-click > This Frame > Open Frame in New Tab and see whether you can use the add-on there.</p>
+<p><strong data-i18n="framedTitle">Permission to inject script was denied!</strong> </p>
+<p data-i18n="framedNote">Menu was activated within a framed page. Try right-click > This Frame > Open Frame in New Tab and see whether you can use the add-on there.</p>
 </div>
 
 <div id="info">
-<p><em>Add-on Options:</em> Choose between popup, tab, simple notification, or silent failure, and configure auto-closing: <button id="options" title="Open Settings">⚙️</button></p>
+<p><em><span data-i18n="addonOptionsInfo">Add-on Options: Choose between popup, tab, simple notification, or silent failure, and configure auto-closing: </span></em><button id="options" title="Open Settings" data-i18n-title="openSettingsTooltip">⚙️</button></p>
 </div>
 <script type="text/javascript" src="save-webp-as-page.js"></script>
 </body>

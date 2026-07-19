@@ -15,6 +15,24 @@
   version 1.5 - Permission error handling & workaround for sandbox issue
 */
 
+function localizeHtmlPage() {
+	var objects = document.querySelectorAll('[data-i18n]');
+	for (var i = 0; i < objects.length; i++) {
+		var obj = objects[i];
+		var valStr = obj.getAttribute('data-i18n');
+		var message = browser.i18n.getMessage(valStr);
+		if (message) {
+			obj.textContent = message;
+		}
+	}
+	var title = document.querySelector('title');
+	if (title && title.getAttribute('data-i18n')) {
+		var titleMsg = browser.i18n.getMessage(title.getAttribute('data-i18n'));
+		if (titleMsg) document.title = titleMsg;
+	}
+}
+localizeHtmlPage();
+
 /*** Initialize Page ***/
 
 // Default starting values
@@ -124,10 +142,10 @@ browser.storage.local.get("prefs").then( (results) => {
 	}).then((result) => {
 		if (result === false){
 			document.querySelector('input[type="radio"][value="notify"]').setAttribute('perm', 'need-notifications');
-			document.getElementById('notifypermnote').textContent = '(Need to grant notifications permission)';
+			document.getElementById('notifypermnote').textContent = browser.i18n.getMessage('needNotificationsPermission');
 		} else {
 			document.querySelector('input[type="radio"][value="notify"]').setAttribute('perm', 'okay');
-			document.getElementById('notifypermnote').textContent = '(Permission previously granted)';
+			document.getElementById('notifypermnote').textContent = browser.i18n.getMessage('permissionPreviouslyGranted');
 		}
 	});
 }).catch((err) => {
@@ -360,7 +378,7 @@ function optionalPerm(evt){
 			}
 		} else {
 			evt.target.setAttribute('perm', 'have-notifications');
-			document.getElementById('notifypermnote').textContent = '(Permission previously granted)';
+			document.getElementById('notifypermnote').textContent = browser.i18n.getMessage('permissionPreviouslyGranted');
 		}
 	})
 }
